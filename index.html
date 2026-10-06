@@ -378,10 +378,10 @@
       </a>
       <nav id="nav-menu">
         <a href="#/">Inicio</a>
-        <a href="#/rutaoportunidades">🧭 Ruta de Oportunidades</a>
-        <a href="#/radaraliados">📡 Radar de Aliados</a>
-        <a href="#/laboratorio">🧪 Laboratorio</a>
-        <a href="#/herramientas">🧰 Caja de Herramientas</a>
+        <a href="#/rutaoportunidades">Ruta de Oportunidades</a>
+        <a href="#/radaraliados">Radar de Aliados</a>
+        <a href="#/laboratorio">Laboratorio</a>
+        <a href="#/herramientas">Caja de Herramientas</a>
       </nav>
     </div>
   </header>
@@ -395,8 +395,7 @@
   <div id="modal-root"></div>
 
   <script>
-    // URL DE TU GOOGLE SHEET PUBLICADO COMO CSV
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuTRM20RXbd8svLWFUhqbzDFJ-k1qJlzkPEJPyTl4QFQ4XbOK8KT3ZFw5Fndzfc5GhfTsNP62IkBpl/pub?output=csv";
+    const RAW_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuTRM20RXbd8svLWFUhqbzDFJ-k1qJlzkPEJPyTl4QFQ4XbOK8KT3ZFw5Fndzfc5GhfTsNP62IkBpl/pub?output=csv";
 
     const state = {
       liveConvocatorias: [],
@@ -405,7 +404,6 @@
       searchTerm: ''
     };
 
-    // Parser CSV avanzado
     function parseCSV(text) {
       const lines = [];
       let row = [];
@@ -451,19 +449,41 @@
 
     async function fetchLiveData() {
       state.isLoading = true;
-      try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL + "&t=" + new Date().getTime());
-        if (!response.ok) throw new Error("Error en respuesta HTTP");
-        const csvText = await response.text();
+      state.loadError = false;
+      
+      const targetUrl = RAW_SHEET_URL + "&t=" + new Date().getTime();
+      const endpoints = [
+        targetUrl,
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl),
+        "https://corsproxy.io/?" + encodeURIComponent(targetUrl)
+      ];
+
+      let csvText = null;
+
+      for (const url of endpoints) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            const text = await response.text();
+            if (text && text.length > 20 && !text.includes("<!DOCTYPE html>")) {
+              csvText = text;
+              break;
+            }
+          }
+        } catch (err) {
+          console.warn("Reintentando conexión con endpoint alternativo:", url);
+        }
+      }
+
+      if (csvText) {
         state.liveConvocatorias = parseCSV(csvText);
         state.loadError = false;
-      } catch (err) {
-        console.error("Error al conectar con Google Sheets:", err);
+      } else {
         state.loadError = true;
-      } finally {
-        state.isLoading = false;
-        router();
       }
+
+      state.isLoading = false;
+      router();
     }
 
     const views = {
@@ -473,35 +493,35 @@
           <p>Ecosistema Institucional de Empleabilidad y Autonomía Vocacional - UniVector PRO</p>
           <div class="status-badge">
             <span class="status-dot"></span> 
-            ${state.isLoading ? 'CONECTANDO CON GOOGLE SHEETS...' : 'BASE DE DATOS EN VIVO CONECTADA (' + state.liveConvocatorias.length + ' REGISTROS)'}
+            ${state.isLoading ? 'CONECTANDO CON BASE DE DATOS...' : 'BASE DE DATOS EN VIVO CONECTADA (' + state.liveConvocatorias.length + ' REGISTROS)'}
           </div>
         </div>
 
         <div class="grid fade-in">
           <div class="card">
             <span class="card-tag">Módulo Principal</span>
-            <h3>🧭 Ruta de Oportunidades</h3>
+            <h3>Ruta de Oportunidades</h3>
             <p>Accede directamente a las convocatorias de prácticas y pasantías registradas en tiempo real en la base de datos de la Universidad.</p>
             <a href="#/rutaoportunidades" class="btn">Explorar Convocatorias (${state.liveConvocatorias.length})</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Red Estratégica</span>
-            <h3>📡 Radar de Aliados</h3>
+            <h3>Radar de Aliados</h3>
             <p>Catálogo de organizaciones y empresas con convenios directos y preferencia por egresados UniVector.</p>
             <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Formación Práctica</span>
-            <h3>🧪 Laboratorio de Experiencias</h3>
+            <h3>Laboratorio de Experiencias</h3>
             <p>Talleres de formulación de logros (Método STAR), simulación de selección y gestión vocacional.</p>
             <a href="#/laboratorio" class="btn">Ver Talleres</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Software y Apps</span>
-            <h3>🧰 Caja de Herramientas</h3>
+            <h3>Caja de Herramientas</h3>
             <p>Aplicaciones interactivas creadas para dinamizar la autogestión de carrera y resolución de crisis.</p>
             <a href="#/herramientas" class="btn btn-fuchsia">Abrir Apps</a>
           </div>
@@ -521,7 +541,7 @@
 
         return `
           <div class="section-header fade-in">
-            <h1>🧭 Ruta de Oportunidades (Prácticas y Pasantías)</h1>
+            <h1>Ruta de Oportunidades (Prácticas y Pasantías)</h1>
             <p>Convocatorias oficiales sincronizadas en tiempo real desde el Google Sheet oficial.</p>
             <div class="status-badge">
               <span class="status-dot"></span> 
@@ -533,14 +553,14 @@
             <input 
               type="text" 
               class="search-input" 
-              placeholder="🔍 Buscar por carrera, empresa, ciudad o título..."
+              placeholder="Ingresa parámetro de búsqueda (carrera, empresa, ciudad, palabra clave)..."
               value="${state.searchTerm}"
               oninput="state.searchTerm = this.value; router();"
             />
           </div>
 
-          ${state.isLoading ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">⚡ Leyendo datos en directo desde Google Sheets...</p>' : ''}
-          ${state.loadError ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">⚠️ Error al descargar los datos del Google Sheet. Verifica que el archivo esté publicado en la web en formato CSV.</p>' : ''}
+          ${state.isLoading ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando datos desde Google Sheets...</p>' : ''}
+          ${state.loadError ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los datos. Comprueba la publicación del archivo en la web.</p>' : ''}
 
           <div class="grid fade-in">
             ${filtered.length === 0 && !state.isLoading ? '<p style="color:var(--text-muted);">No se encontraron convocatorias que coincidan con el parámetro de búsqueda.</p>' : ''}
@@ -550,7 +570,7 @@
                 <div>
                   <span class="card-tag">${c['Modalidad'] || 'Convocatoria'}</span>
                   <h3>${c['Título de la convocatoria'] || c['Cargo'] || 'Sin Título'}</h3>
-                  <div class="card-entity">🏢 ${c['Nombre de la entidad'] || 'Entidad no registrada'}</div>
+                  <div class="card-entity">Entidad: ${c['Nombre de la entidad'] || 'No registrada'}</div>
                   <p>${(c['Descripción'] || 'Sin descripción disponible.').substring(0, 110)}...</p>
                 </div>
                 
@@ -577,7 +597,7 @@
 
       '/radaraliados': () => `
         <div class="section-header fade-in">
-          <h1>📡 Radar de Aliados (Empresas Preferenciales)</h1>
+          <h1>Radar de Aliados (Empresas Preferenciales)</h1>
           <p>Organizaciones vinculadas al programa de captación de talento UniVector PRO.</p>
         </div>
         <div class="grid fade-in">
@@ -607,7 +627,7 @@
 
       '/laboratorio': () => `
         <div class="section-header fade-in">
-          <h1>🧪 Laboratorio de Experiencias</h1>
+          <h1>Laboratorio de Experiencias</h1>
           <p>Talleres formativos e intervenciones estratégicas realizadas por el equipo VECTOR.</p>
         </div>
         <div class="grid fade-in">
@@ -631,7 +651,7 @@
 
       '/herramientas': () => `
         <div class="section-header fade-in">
-          <h1>🧰 Caja de Herramientas (Apps)</h1>
+          <h1>Caja de Herramientas (Apps)</h1>
           <p>Software y aplicativos diseñados para acompañar la gestión emocional y técnica.</p>
         </div>
         <div class="grid fade-in">
