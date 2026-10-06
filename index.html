@@ -3,92 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VECTOR | Código de Impacto - UniVector PRO</title>
+  <title>VECTOR: Código de Impacto | Portal UniVector PRO</title>
   
-  <!-- Tipografías: Fira Code (Consola) e Inter (Lectura) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      /* Paleta Neón / Cyberpunk */
       --bg-dark: #0a0e17;
       --bg-card: rgba(15, 23, 42, 0.85);
-      --panel-border: rgba(0, 243, 255, 0.25);
-      
+      --bg-card-hover: rgba(30, 41, 59, 0.9);
       --cyan-neon: #00f3ff;
-      --magenta-neon: #d946ef;
+      --cyan-glow: rgba(0, 243, 255, 0.25);
+      --fuchsia-neon: #d946ef;
+      --fuchsia-glow: rgba(217, 70, 239, 0.25);
       --red-alert: #ef4444;
-      --green-online: #10b981;
-      --yellow-warn: #f59e0b;
-      
-      --text-main: #e2e8f0;
+      --green-status: #10b981;
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      
+      --border-color: rgba(0, 243, 255, 0.3);
       --font-mono: 'Fira Code', monospace;
       --font-sans: 'Inter', sans-serif;
-      
-      --transition: all 0.25s ease-in-out;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.08) 0%, transparent 60%),
-        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-      background-size: 100% 100%, 35px 35px, 35px 35px;
-      background-attachment: fixed;
-      
       color: var(--text-main);
       font-family: var(--font-sans);
-      line-height: 1.6;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden;
+      background-image: 
+        linear-gradient(to right, rgba(0, 243, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 243, 255, 0.04) 1px, transparent 1px);
+      background-size: 30px 30px;
     }
 
-    h1, h2, h3, h4, .mono-text, nav a, .btn {
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    h1 {
-      color: var(--cyan-neon);
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 12px rgba(0, 243, 255, 0.35);
-    }
-    
-    h1::before { 
-      content: ">_ "; 
-      color: var(--magenta-neon); 
-    }
-
-    /* HEADER Y NAV */
     header {
-      background: rgba(10, 14, 23, 0.92);
-      border-bottom: 1px solid var(--panel-border);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      background-color: rgba(10, 14, 23, 0.95);
+      border-bottom: 1px solid var(--cyan-neon);
+      box-shadow: 0 0 15px var(--cyan-glow);
       position: sticky;
       top: 0;
-      z-index: 90;
+      z-index: 100;
       backdrop-filter: blur(8px);
     }
 
     .nav-container {
-      max-width: 1280px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 0.85rem 1.5rem;
+      padding: 1rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -96,20 +63,29 @@
       gap: 1rem;
     }
 
-    .logo {
-      font-family: var(--font-mono);
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--cyan-neon);
-      text-decoration: none;
+    .brand {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+      gap: 0.75rem;
+      text-decoration: none;
     }
 
-    .logo span {
-      color: var(--magenta-neon);
+    .brand-logo {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--cyan-neon);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px var(--cyan-neon);
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--fuchsia-neon);
+      font-family: var(--font-mono);
+      border-left: 2px solid var(--fuchsia-neon);
+      padding-left: 0.5rem;
     }
 
     nav {
@@ -121,159 +97,201 @@
     nav a {
       color: var(--text-muted);
       text-decoration: none;
-      padding: 0.5rem 0.85rem;
-      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.5rem 0.8rem;
       border: 1px solid transparent;
-      border-radius: 2px;
-      transition: var(--transition);
+      border-radius: 4px;
+      transition: all 0.2s ease-in-out;
+      text-transform: uppercase;
     }
 
     nav a:hover, nav a.active {
       color: var(--cyan-neon);
-      border-color: rgba(0, 243, 255, 0.4);
-      background: rgba(0, 243, 255, 0.05);
-      text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+      border-color: var(--cyan-neon);
+      background-color: rgba(0, 243, 255, 0.08);
+      box-shadow: 0 0 10px var(--cyan-glow);
     }
 
-    /* BARRA DE ESTADO DEL SISTEMA */
-    .status-bar {
-      background: rgba(5, 8, 15, 0.85);
-      border-bottom: 1px solid rgba(0, 243, 255, 0.1);
-      padding: 0.4rem 1.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .status-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: var(--yellow-warn);
-      box-shadow: 0 0 8px var(--yellow-warn);
-    }
-
-    .dot.online {
-      background-color: var(--green-online);
-      box-shadow: 0 0 8px var(--green-online);
-    }
-
-    .dot.error {
-      background-color: var(--red-alert);
-      box-shadow: 0 0 8px var(--red-alert);
-    }
-
-    /* CONTENEDOR PRINCIPAL */
     main {
       flex: 1;
-      max-width: 1280px;
+      max-width: 1200px;
       width: 100%;
-      margin: 1.5rem auto;
+      margin: 2rem auto;
       padding: 0 1.5rem;
     }
 
-    /* GRID Y TARJETAS */
+    .section-header {
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--cyan-neon);
+      padding-left: 1rem;
+    }
+
+    .section-header h1 {
+      font-family: var(--font-mono);
+      font-size: 1.8rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--green-status);
+      color: var(--green-status);
+      margin-top: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--green-status);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green-status);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .controls-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 280px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--cyan-neon);
+      color: var(--cyan-neon);
+      font-family: var(--font-mono);
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .search-input::placeholder {
+      color: rgba(0, 243, 255, 0.5);
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
       gap: 1.5rem;
-      margin-top: 1.5rem;
     }
 
     .card {
       background: var(--bg-card);
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
       padding: 1.5rem;
-      position: relative;
-      transition: var(--transition);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      backdrop-filter: blur(4px);
+      transition: all 0.25s ease;
+      position: relative;
     }
 
     .card::before {
       content: '';
       position: absolute;
-      top: -1px; left: -1px;
-      width: 8px; height: 8px;
-      border-top: 2px solid var(--cyan-neon);
-      border-left: 2px solid var(--cyan-neon);
-    }
-
-    .card::after {
-      content: '';
-      position: absolute;
-      bottom: -1px; right: -1px;
-      width: 8px; height: 8px;
-      border-bottom: 2px solid var(--magenta-neon);
-      border-right: 2px solid var(--magenta-neon);
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--cyan-neon);
+      box-shadow: 0 0 10px var(--cyan-neon);
     }
 
     .card:hover {
+      background: var(--bg-card-hover);
       border-color: var(--cyan-neon);
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(0, 243, 255, 0.15);
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      background: rgba(217, 70, 239, 0.15);
+      color: var(--fuchsia-neon);
+      border: 1px solid var(--fuchsia-neon);
+      width: fit-content;
     }
 
     .card h3 {
-      color: #ffffff;
-      font-size: 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-entity {
+      color: var(--cyan-neon);
+      font-weight: 600;
+      font-size: 0.9rem;
       margin-bottom: 0.75rem;
-      line-height: 1.3;
     }
 
     .card p {
-      font-size: 0.88rem;
       color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
       margin-bottom: 1rem;
     }
 
-    .badge-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1rem;
-    }
-
-    .badge {
+    .meta-box {
+      background: rgba(10, 14, 23, 0.8);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      padding: 0.75rem;
+      border-radius: 4px;
       font-family: var(--font-mono);
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      font-size: 0.68rem;
-      font-weight: 600;
-      border: 1px solid;
-      background: rgba(0,0,0,0.4);
-      text-transform: uppercase;
+      font-size: 0.8rem;
+      margin-bottom: 1.25rem;
+      color: #cbd5e1;
     }
-    
-    .badge.cyan { border-color: var(--cyan-neon); color: var(--cyan-neon); }
-    .badge.magenta { border-color: var(--magenta-neon); color: var(--magenta-neon); }
-    .badge.green { border-color: var(--green-online); color: var(--green-online); }
-    .badge.red { border-color: var(--red-alert); color: var(--red-alert); }
 
-    /* BOTONES */
+    .meta-box div { margin-bottom: 0.3rem; }
+    .meta-box strong { color: var(--cyan-neon); }
+
     .btn {
-      display: inline-block;
+      display: block;
       width: 100%;
       text-align: center;
-      background: rgba(0, 243, 255, 0.08);
+      background: transparent;
       color: var(--cyan-neon);
-      padding: 0.65rem 1rem;
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-decoration: none;
       border: 1px solid var(--cyan-neon);
+      padding: 0.65rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 4px;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.2s;
     }
 
     .btn:hover {
@@ -282,734 +300,419 @@
       box-shadow: 0 0 15px var(--cyan-neon);
     }
 
-    .btn.secondary {
-      background: rgba(217, 70, 239, 0.08);
-      color: var(--magenta-neon);
-      border-color: var(--magenta-neon);
+    .btn-fuchsia {
+      color: var(--fuchsia-neon);
+      border-color: var(--fuchsia-neon);
     }
 
-    .btn.secondary:hover {
-      background: var(--magenta-neon);
+    .btn-fuchsia:hover {
+      background: var(--fuchsia-neon);
       color: var(--bg-dark);
-      box-shadow: 0 0 15px var(--magenta-neon);
+      box-shadow: 0 0 15px var(--fuchsia-neon);
     }
 
-    /* BÚSQUEDA Y FILTROS */
-    .search-container {
-      margin-bottom: 1.5rem;
+    .btn-group {
       display: flex;
-      gap: 1rem;
-      position: relative;
+      gap: 0.5rem;
     }
 
-    .search-container::before {
-      content: 'SEARCH::';
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: var(--font-mono);
-      color: var(--magenta-neon);
-      font-size: 0.8rem;
-      pointer-events: none;
-    }
-
-    .search-input {
-      flex: 1;
-      padding: 0.75rem 1rem 0.75rem 6.5rem;
-      background: rgba(5, 8, 15, 0.9);
-      border: 1px solid var(--panel-border);
-      color: var(--cyan-neon);
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      outline: none;
-      transition: var(--transition);
-    }
-
-    .search-input:focus {
-      border-color: var(--cyan-neon);
-      box-shadow: 0 0 12px rgba(0, 243, 255, 0.25);
-    }
-
-    /* METRICAS */
-    .metrics-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 2rem;
-    }
-    
-    .metric-box {
-      background: var(--bg-card);
-      padding: 1.25rem;
-      border: 1px solid var(--panel-border);
-      border-left: 4px solid var(--magenta-neon);
-    }
-    
-    .metric-box h4 { 
-      color: var(--text-muted); 
-      font-size: 0.75rem;
-      margin-bottom: 0.4rem;
-    }
-    
-    .metric-box p { 
-      font-family: var(--font-mono);
-      font-size: 2.2rem; 
-      font-weight: 700;
-      color: var(--cyan-neon); 
-      text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
-    }
-
-    /* TERMINAL */
-    .terminal-window {
-      background: rgba(5, 8, 15, 0.95);
-      border: 1px solid var(--panel-border);
-      padding: 1.25rem;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1.5rem;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-    }
-    .terminal-window .success { color: var(--cyan-neon); }
-    .terminal-window .highlight { color: var(--magenta-neon); }
-
-    /* MODAL */
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(5, 8, 15, 0.88);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 14, 23, 0.9);
+      backdrop-filter: blur(5px);
       display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 1.5rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: var(--transition);
+      align-items: center;
+      z-index: 1000;
+      padding: 1rem;
     }
 
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
+    .modal-content {
       background: var(--bg-dark);
-      border: 1px solid var(--cyan-neon);
-      box-shadow: 0 0 30px rgba(0, 243, 255, 0.25);
+      border: 2px solid var(--cyan-neon);
+      border-radius: 8px;
+      max-width: 700px;
       width: 100%;
-      max-width: 800px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: 0 0 30px var(--cyan-glow);
       position: relative;
-    }
-
-    .modal-header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--panel-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    .modal-header h2 {
-      color: var(--cyan-neon);
-      font-size: 1.3rem;
     }
 
     .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
       background: transparent;
       border: 1px solid var(--red-alert);
       color: var(--red-alert);
       font-family: var(--font-mono);
-      font-size: 1rem;
-      width: 32px;
-      height: 32px;
+      font-weight: bold;
+      padding: 0.2rem 0.6rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
     }
 
-    .modal-close:hover {
-      background: var(--red-alert);
-      color: #fff;
-      box-shadow: 0 0 10px var(--red-alert);
-    }
-
-    .modal-body {
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(10, 14, 23, 0.95);
       padding: 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .modal-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.25rem;
-    }
-
-    .data-item {
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(0, 243, 255, 0.1);
-      padding: 0.85rem 1rem;
-    }
-
-    .data-item.full-width {
-      grid-column: 1 / -1;
-    }
-
-    .data-label {
+      text-align: center;
       font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--magenta-neon);
-      text-transform: uppercase;
-      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 3rem;
     }
 
-    .data-value {
-      font-size: 0.9rem;
-      color: var(--text-main);
-      word-break: break-word;
-    }
-
-    .modal-footer {
-      padding: 1rem 1.5rem;
-      border-top: 1px solid var(--panel-border);
-      background: rgba(15, 23, 42, 0.9);
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-    }
-
-    /* ANIMACIONES */
-    .fade-in {
-      animation: fadeIn 0.3s ease-out forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-  <!-- Barra de estado -->
-  <div class="status-bar">
-    <div>SYS.ENV::PRODUCTION // CAMPUS_NAVEGANTES</div>
-    <div class="status-indicator">
-      <div id="status-dot" class="dot"></div>
-      <span id="status-text">CONECTANDO A GOOGLE SHEETS...</span>
-    </div>
-  </div>
-
   <header>
     <div class="nav-container">
-      <a href="#/" class="logo">
-        [VECTOR] <span>PRO</span>
+      <a href="#/" class="brand">
+        <span class="brand-logo">VECTOR</span>
+        <span class="brand-sub">Código de Impacto | Campus Navegantes</span>
       </a>
-      <nav id="nav-links">
-        <a href="#/">[INICIO]</a>
-        <a href="#/rutaoportunidades">[RUTA_OPORTUNIDADES]</a>
-        <a href="#/radaraliados">[RADAR_ALIADOS]</a>
-        <a href="#/laboratorio">[LABORATORIO]</a>
-        <a href="#/herramientas">[HERRAMIENTAS]</a>
+      <nav id="nav-menu">
+        <a href="#/">Inicio</a>
+        <a href="#/rutaoportunidades">🧭 Ruta de Oportunidades</a>
+        <a href="#/radaraliados">📡 Radar de Aliados</a>
+        <a href="#/laboratorio">🧪 Laboratorio</a>
+        <a href="#/herramientas">🧰 Caja de Herramientas</a>
       </nav>
     </div>
   </header>
 
-  <!-- Vistas SPA -->
   <main id="app"></main>
 
-  <!-- Modal Emergente -->
-  <div id="modal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div>
-          <span class="badge cyan" id="modal-badge">OPORTUNIDAD DETALLE</span>
-          <h2 id="modal-title">Cargando datos...</h2>
-        </div>
-        <button class="modal-close" onclick="cerrarModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-grid" id="modal-grid-content">
-          <!-- Se llena dinámicamente -->
-        </div>
-      </div>
-      <div class="modal-footer" id="modal-footer-actions">
-        <button class="btn" onclick="cerrarModal()">CERRAR_VENTANA</button>
-      </div>
-    </div>
-  </div>
+  <footer>
+    UNIVERSIDAD NACIONAL DE COLOMBIA - UniVector PRO | Plataforma Desarrollada por el Equipo VECTOR
+  </footer>
+
+  <div id="modal-root"></div>
 
   <script>
-    // URL del CSV público de Google Sheets
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuTRM20RXbd8svLWFUhqbzDFJ-k1qJlzkPEJPyTl4QFQ4XbOK8KT3ZFw5Fndzfc5GhfTsNP62IkBpl/pub?output=csv";
+    // URL DE TU GOOGLE SHEET PUBLICADO COMO CSV
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuTRM20RXbd8svLWFUhqbzDFJ-k1qJlzkPEJPyTl4QFQ4XbOK8KT3ZFw5Fndzfc5GhfTsNP62IkBpl/pub?output=csv";
 
-    // Estado global de la app
-    const appState = {
-      oportunidades: [],
-      empresas: [],
-      talleres: [
-        { id: 1, nombre: "Taller Código de Impacto", desc: "Formulación de logros estructurados y metodología STAR para perfiles técnicos y ejecutivos." },
-        { id: 2, nombre: "La Ruleta de Dilemas", desc: "Intervención presencial y simulada sobre toma de decisiones y autonomía vocacional." },
-        { id: 3, nombre: "Foro Terreno Laboral", desc: "Conversatorio especializado sobre modalidades de contratación, normatividad y derechos laborales." },
-        { id: 4, nombre: "Simulador de Selección Relámpago", desc: "Prueba de desempeño bajo presión con evaluadores reales del sector industrial y corporativo." }
-      ],
-      apps: [
-        { id: 1, nombre: "Escape Room: Código de Impacto", desc: "Aplicativo gamificado para validar el cumplimiento de logros y descifrar claves estratégicas." },
-        { id: 2, nombre: "La Caja de Crisis Interactiva", desc: "Simulador de tarjetas aleatorias para gestión de resiliencia y resolución de situaciones complejas." },
-        { id: 3, nombre: "Brújula Digital de Recursos", desc: "Portal integrado de navegación de convocatorias y pasantías en tiempo real." }
-      ],
-      isConnected: false
+    const state = {
+      liveConvocatorias: [],
+      isLoading: true,
+      loadError: false,
+      searchTerm: ''
     };
 
-    // Parser CSV tolerante a comas dentro de comillas
+    // Parser CSV avanzado
     function parseCSV(text) {
       const lines = [];
       let row = [];
+      let col = '';
       let inQuotes = false;
-      let currentVal = '';
 
       for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const nextChar = text[i + 1];
+        const c = text[i];
+        const next = text[i + 1];
 
-        if (char === '"') {
-          if (inQuotes && nextChar === '"') {
-            currentVal += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          row.push(currentVal.trim());
-          currentVal = '';
-        } else if ((char === '\r' || char === '\n') && !inQuotes) {
-          if (char === '\r' && nextChar === '\n') {
-            i++;
-          }
-          row.push(currentVal.trim());
-          if (row.some(f => f.length > 0)) {
-            lines.push(row);
-          }
+        if (c === '"') {
+          if (inQuotes && next === '"') { col += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (c === ',' && !inQuotes) {
+          row.push(col.trim());
+          col = '';
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && next === '\n') { i++; }
+          row.push(col.trim());
+          if (row.some(field => field !== '')) lines.push(row);
           row = [];
-          currentVal = '';
+          col = '';
         } else {
-          currentVal += char;
+          col += c;
         }
       }
-      if (currentVal || row.length > 0) {
-        row.push(currentVal.trim());
-        if (row.some(f => f.length > 0)) {
-          lines.push(row);
-        }
+      if (col || row.length) {
+        row.push(col.trim());
+        if (row.some(field => field !== '')) lines.push(row);
       }
 
       if (lines.length < 2) return [];
 
-      const headers = lines[0].map(h => h.replace(/^"|"$/g, '').trim());
-      const data = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i];
-        if (values.length === 0) continue;
+      const headers = lines[0];
+      return lines.slice(1).map(r => {
         const obj = {};
-        headers.forEach((header, idx) => {
-          let val = values[idx] || '';
-          val = val.replace(/^"|"$/g, '').trim();
-          obj[header] = val;
+        headers.forEach((h, idx) => {
+          obj[h.trim()] = r[idx] ? r[idx].trim() : '';
         });
-        data.push(obj);
-      }
-      return data;
-    }
-
-    // Carga de datos desde Google Sheets
-    async function cargarDatosGoogleSheets() {
-      const dot = document.getElementById('status-dot');
-      const text = document.getElementById('status-text');
-
-      try {
-        const response = await fetch(SHEET_CSV_URL);
-        if (!response.ok) throw new Error("Error en la respuesta del servidor");
-
-        const csvText = await response.text();
-        const parsedData = parseCSV(csvText);
-
-        if (parsedData.length > 0) {
-          appState.oportunidades = parsedData;
-          appState.isConnected = true;
-
-          // Extraer lista de empresas únicas para el Radar de Aliados
-          const empresasSet = new Map();
-          parsedData.forEach(item => {
-            const nombreEmpresa = item["Empresa / Organización"] || item["Empresa"] || item["Organizacion"] || item["Nombre de la Empresa"] || "Entidad Aliada";
-            const sector = item["Sector"] || item["Carrera Requerida"] || item["Area"] || "Tecnología / Consultoría";
-            if (nombreEmpresa && !empresasSet.has(nombreEmpresa)) {
-              empresasSet.set(nombreEmpresa, {
-                nombre: nombreEmpresa,
-                sector: sector,
-                ubicacion: item["Ciudad / Ubicación"] || item["Ubicacion"] || item["Ciudad"] || "Nacional",
-                ofertasActivas: 1
-              });
-            } else if (empresasSet.has(nombreEmpresa)) {
-              empresasSet.get(nombreEmpresa).ofertasActivas++;
-            }
-          });
-
-          appState.empresas = Array.from(empresasSet.values());
-
-          dot.className = "dot online";
-          text.innerText = `CONECTADO CON GOOGLE SHEETS [${parsedData.length} REGISTROS SINCRO]`;
-        } else {
-          throw new Error("El archivo CSV no contiene registros válidos.");
-        }
-      } catch (err) {
-        console.warn("Falló la conexión remota con Sheets:", err);
-        dot.className = "dot error";
-        text.innerText = "MODO OFFLINE / DATOS SIMULADOS LOCALES";
-        
-        // Datos de respaldo local
-        appState.oportunidades = [
-          {
-            "Título de Convocatoria": "Pasantía en Desarrollo FullStack & IA",
-            "Empresa / Organización": "GemaTech Solutions",
-            "Carrera Requerida": "Ingeniería de Sistemas / Computación",
-            "Ciudad / Ubicación": "Bogotá / Remoto",
-            "Tipo": "Pasantía",
-            "Modalidad": "Híbrida",
-            "Descripción": "Desarrollo de microservicios y asistentes inteligentes para optimización industrial.",
-            "Requisitos": "Conocimientos en JavaScript, Python y Git.",
-            "Enlace de Postulación": "https://forms.gle/demo1"
-          },
-          {
-            "Título de Convocatoria": "Beca de Excelencia Vectorial 2026",
-            "Empresa / Organización": "Fundación Vectoria",
-            "Carrera Requerida": "Todas las carreras",
-            "Ciudad / Ubicación": "Nacional",
-            "Tipo": "Beca",
-            "Modalidad": "Presencial",
-            "Descripción": "Financiación del 100% para investigación aplicada e innovación social.",
-            "Requisitos": "Promedio acumulado superior a 4.2 y proyecto activo.",
-            "Enlace de Postulación": "https://forms.gle/demo2"
-          }
-        ];
-        appState.empresas = [
-          { nombre: "GemaTech Solutions", sector: "Tecnología e Ingeniería", ubicacion: "Bogotá", ofertasActivas: 2 },
-          { nombre: "Vectoria Corp", sector: "Infraestructura y Energía", ubicacion: "Medellín", ofertasActivas: 1 }
-        ];
-      }
-
-      // Re-renderizar la vista actual para refrescar la interfaz con los nuevos datos
-      router();
-    }
-
-    // Funciones del Modal
-    window.abrirModal = (index) => {
-      const item = appState.oportunidades[index];
-      if (!item) return;
-
-      const modal = document.getElementById('modal');
-      const title = document.getElementById('modal-title');
-      const grid = document.getElementById('modal-grid-content');
-      const footer = document.getElementById('modal-footer-actions');
-      const badge = document.getElementById('modal-badge');
-
-      const titulo = item["Título de Convocatoria"] || item["Titulo"] || item["Nombre"] || "Detalle de Convocatoria";
-      const tipo = item["Tipo"] || item["Tipo de Oportunidad"] || "Oportunidad";
-      
-      title.innerText = titulo;
-      badge.innerText = `[${tipo.toUpperCase()}]`;
-
-      grid.innerHTML = '';
-
-      // Renderizar todas las columnas disponibles en el objeto de forma dinámica
-      let linkPostulacion = null;
-
-      Object.entries(item).forEach(([key, value]) => {
-        if (!value || value.trim() === '') return;
-
-        const isUrl = value.startsWith('http://') || value.startsWith('https://');
-        const isLongText = value.length > 80;
-
-        if (isUrl && (key.toLowerCase().includes('postul') || key.toLowerCase().includes('enlace') || key.toLowerCase().includes('form') || key.toLowerCase().includes('link'))) {
-          linkPostulacion = value;
-        }
-
-        const dataBox = document.createElement('div');
-        dataBox.className = `data-item ${isLongText ? 'full-width' : ''}`;
-        
-        dataBox.innerHTML = `
-          <div class="data-label">${key}</div>
-          <div class="data-value">${isUrl ? `<a href="${value}" target="_blank" style="color: var(--cyan-neon); font-family: var(--font-mono);">${value}</a>` : value}</div>
-        `;
-
-        grid.appendChild(dataBox);
+        return obj;
       });
+    }
 
-      // Configurar botón principal en el pie del modal
-      if (linkPostulacion) {
-        footer.innerHTML = `
-          <a href="${linkPostulacion}" target="_blank" class="btn" style="text-decoration: none;">POSTULARME_AHORA (GOOGLE FORMS)</a>
-          <button class="btn secondary" onclick="cerrarModal()">CERRAR</button>
-        `;
-      } else {
-        footer.innerHTML = `
-          <button class="btn" onclick="cerrarModal()">CERRAR_VENTANA</button>
-        `;
+    async function fetchLiveData() {
+      state.isLoading = true;
+      try {
+        const response = await fetch(GOOGLE_SHEET_CSV_URL + "&t=" + new Date().getTime());
+        if (!response.ok) throw new Error("Error en respuesta HTTP");
+        const csvText = await response.text();
+        state.liveConvocatorias = parseCSV(csvText);
+        state.loadError = false;
+      } catch (err) {
+        console.error("Error al conectar con Google Sheets:", err);
+        state.loadError = true;
+      } finally {
+        state.isLoading = false;
+        router();
       }
+    }
 
-      modal.classList.add('active');
-    };
-
-    window.cerrarModal = () => {
-      document.getElementById('modal').classList.remove('active');
-    };
-
-    // Renderizadores de vistas
-    const generarTarjetasOportunidades = (datos) => {
-      if (datos.length === 0) {
-        return `<p class="mono-text" style="color: var(--red-alert); grid-column: 1/-1;">[!] NULL_RESULT: No se encontraron registros coincidentes.</p>`;
-      }
-
-      return datos.map((item, index) => {
-        const titulo = item["Título de Convocatoria"] || item["Titulo"] || item["Nombre de la Vacante"] || "Convocatoria Sin Título";
-        const empresa = item["Empresa / Organización"] || item["Empresa"] || "Entidad Confidencial";
-        const carrera = item["Carrera Requerida"] || item["Carrera"] || "Abierto a todas las carreras";
-        const ciudad = item["Ciudad / Ubicación"] || item["Ciudad"] || item["Ubicacion"] || "Nacional";
-        const tipo = item["Tipo"] || item["Tipo de Programa"] || "General";
-
-        return `
-          <div class="card">
-            <div>
-              <div class="badge-container">
-                <span class="badge cyan">${tipo}</span>
-                <span class="badge magenta">${ciudad}</span>
-              </div>
-              <h3>${titulo}</h3>
-              <p style="color: var(--cyan-neon); font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 0.5rem;">ORG:: ${empresa}</p>
-              <p><strong>Perfil:</strong> ${carrera}</p>
-            </div>
-            <button class="btn" onclick="abrirModal(${index})">VER_DETALLE_COMPLETO</button>
-          </div>
-        `;
-      }).join('');
-    };
-
-    const generarTarjetasAliados = (datos) => {
-      if (datos.length === 0) {
-        return `<p class="mono-text" style="color: var(--red-alert); grid-column: 1/-1;">[!] NULL_RESULT: Sin entidades registradas.</p>`;
-      }
-
-      return datos.map(item => `
-        <div class="card">
-          <div>
-            <div class="badge-container">
-              <span class="badge magenta">OFERTAS::${item.ofertasActivas}</span>
-              <span class="badge cyan">${item.ubicacion}</span>
-            </div>
-            <h3>${item.nombre}</h3>
-            <p style="margin-top: 0.5rem;"><strong>Sector / Área:</strong> ${item.sector}</p>
-          </div>
-          <button class="btn secondary" onclick="filtrarConvocatoriasPorEmpresa('${item.nombre}')">VER_CONVOCATORIAS</button>
-        </div>
-      `).join('');
-    };
-
-    const generarTarjetasGenericas = (datos, btnText, btnClass = "btn") => {
-      return datos.map(item => `
-        <div class="card">
-          <div>
-            <h3>${item.nombre}</h3>
-            <p>${item.desc}</p>
-          </div>
-          <button class="${btnClass}">${btnText}</button>
-        </div>
-      `).join('');
-    };
-
-    // Vistas para la arquitectura SPA
     const views = {
       '/': () => `
-        <div class="fade-in">
-          <div class="terminal-window">
-            <p>> Inicializando Ecosistema UniVector PRO...</p>
-            <p>> Conectando con servidor de datos en la nube (Google Sheets)...</p>
-            <p class="success">> SISTEMA OPERATIVO. Convocatorias actualizadas dinámicamente.</p>
+        <div class="section-header fade-in">
+          <h1>SISTEMA OPERATIVO | VECTOR: CÓDIGO DE IMPACTO</h1>
+          <p>Ecosistema Institucional de Empleabilidad y Autonomía Vocacional - UniVector PRO</p>
+          <div class="status-badge">
+            <span class="status-dot"></span> 
+            ${state.isLoading ? 'CONECTANDO CON GOOGLE SHEETS...' : 'BASE DE DATOS EN VIVO CONECTADA (' + state.liveConvocatorias.length + ' REGISTROS)'}
           </div>
-          
-          <h1>Panel de Control Integrado</h1>
-          <p style="margin-bottom: 2rem; max-width: 800px; color: var(--text-muted);">
-            Plataforma central para la aceleración profesional, becas y oportunidades del Campus Navegantes.
-          </p>
-          
-          <div class="metrics-container">
-            <div class="metric-box">
-              <h4>CONVOCATORIAS_EN_VIVO</h4>
-              <p>${appState.oportunidades.length}</p>
-            </div>
-            <div class="metric-box">
-              <h4>ENTIDADES_ALIADAS</h4>
-              <p>${appState.empresas.length}</p>
-            </div>
-            <div class="metric-box">
-              <h4>MÓDULOS_DE_FORMACIÓN</h4>
-              <p>${appState.talleres.length + appState.apps.length}</p>
-            </div>
+        </div>
+
+        <div class="grid fade-in">
+          <div class="card">
+            <span class="card-tag">Módulo Principal</span>
+            <h3>🧭 Ruta de Oportunidades</h3>
+            <p>Accede directamente a las convocatorias de prácticas y pasantías registradas en tiempo real en la base de datos de la Universidad.</p>
+            <a href="#/rutaoportunidades" class="btn">Explorar Convocatorias (${state.liveConvocatorias.length})</a>
           </div>
 
-          <h2 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--cyan-neon);">[ RUTA_DE_ACCESO_RÁPIDO ]</h2>
-          <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-            <div class="card">
-              <div>
-                <h3>Ruta de Oportunidades</h3>
-                <p>Explora becas, pasantías y empleos cargados en tiempo real.</p>
-              </div>
-              <a href="#/rutaoportunidades" class="btn">EXPLORAR_RUTA</a>
-            </div>
-            <div class="card">
-              <div>
-                <h3>Radar de Aliados</h3>
-                <p>Directorio institucional de corporaciones y aliados académicos.</p>
-              </div>
-              <a href="#/radaraliados" class="btn secondary">ESCANEAR_RED</a>
-            </div>
+          <div class="card">
+            <span class="card-tag">Red Estratégica</span>
+            <h3>📡 Radar de Aliados</h3>
+            <p>Catálogo de organizaciones y empresas con convenios directos y preferencia por egresados UniVector.</p>
+            <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados</a>
+          </div>
+
+          <div class="card">
+            <span class="card-tag">Formación Práctica</span>
+            <h3>🧪 Laboratorio de Experiencias</h3>
+            <p>Talleres de formulación de logros (Método STAR), simulación de selección y gestión vocacional.</p>
+            <a href="#/laboratorio" class="btn">Ver Talleres</a>
+          </div>
+
+          <div class="card">
+            <span class="card-tag">Software y Apps</span>
+            <h3>🧰 Caja de Herramientas</h3>
+            <p>Aplicaciones interactivas creadas para dinamizar la autogestión de carrera y resolución de crisis.</p>
+            <a href="#/herramientas" class="btn btn-fuchsia">Abrir Apps</a>
           </div>
         </div>
       `,
 
-      '/rutaoportunidades': () => `
-        <div class="fade-in">
-          <h1>Ruta de Oportunidades</h1>
-          <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
-            Filtra pasantías, prácticas y ofertas académicas sincronizadas desde la base de datos oficial.
-          </p>
-          
-          <div class="search-container">
-            <input type="text" id="busqueda-ruta" class="search-input" placeholder="INGRESE PARÁMETRO (carrera, empresa, ciudad, palabra clave)..." onkeyup="filtrarRuta()">
+      '/rutaoportunidades': () => {
+        const filtered = state.liveConvocatorias.filter(item => {
+          const q = state.searchTerm.toLowerCase();
+          return (
+            (item['Título de la convocatoria'] || '').toLowerCase().includes(q) ||
+            (item['Nombre de la entidad'] || '').toLowerCase().includes(q) ||
+            (item['Programas académicos requeridos'] || '').toLowerCase().includes(q) ||
+            (item['Ciudad'] || '').toLowerCase().includes(q)
+          );
+        });
+
+        return `
+          <div class="section-header fade-in">
+            <h1>🧭 Ruta de Oportunidades (Prácticas y Pasantías)</h1>
+            <p>Convocatorias oficiales sincronizadas en tiempo real desde el Google Sheet oficial.</p>
+            <div class="status-badge">
+              <span class="status-dot"></span> 
+              ${state.isLoading ? 'CARGANDO REGISTROS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveConvocatorias.length + ' OFERTAS)'}
+            </div>
           </div>
 
-          <div class="grid" id="grid-ruta">
-            ${generarTarjetasOportunidades(appState.oportunidades)}
+          <div class="controls-bar fade-in">
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="🔍 Buscar por carrera, empresa, ciudad o título..."
+              value="${state.searchTerm}"
+              oninput="state.searchTerm = this.value; router();"
+            />
           </div>
-        </div>
-      `,
+
+          ${state.isLoading ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">⚡ Leyendo datos en directo desde Google Sheets...</p>' : ''}
+          ${state.loadError ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">⚠️ Error al descargar los datos del Google Sheet. Verifica que el archivo esté publicado en la web en formato CSV.</p>' : ''}
+
+          <div class="grid fade-in">
+            ${filtered.length === 0 && !state.isLoading ? '<p style="color:var(--text-muted);">No se encontraron convocatorias que coincidan con el parámetro de búsqueda.</p>' : ''}
+            
+            ${filtered.map((c, idx) => `
+              <div class="card">
+                <div>
+                  <span class="card-tag">${c['Modalidad'] || 'Convocatoria'}</span>
+                  <h3>${c['Título de la convocatoria'] || c['Cargo'] || 'Sin Título'}</h3>
+                  <div class="card-entity">🏢 ${c['Nombre de la entidad'] || 'Entidad no registrada'}</div>
+                  <p>${(c['Descripción'] || 'Sin descripción disponible.').substring(0, 110)}...</p>
+                </div>
+                
+                <div>
+                  <div class="meta-box">
+                    <div><strong>Programa:</strong> ${c['Programas académicos requeridos'] || 'Todos'}</div>
+                    <div><strong>Apoyo:</strong> ${c['Apoyo económico'] || 'No especificado'}</div>
+                    <div><strong>Ciudad:</strong> ${c['Ciudad'] || 'No especificada'}</div>
+                    <div><strong>Cierre:</strong> ${c['Fecha de cierre'] || 'Abierta'}</div>
+                  </div>
+
+                  <div class="btn-group">
+                    <button class="btn" onclick="openModal(${idx})">Ver Detalle Completo</button>
+                    ${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms'] ? 
+                      `<a href="${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms']}" target="_blank" class="btn btn-fuchsia">Postular</a>` : ''
+                    }
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      },
 
       '/radaraliados': () => `
-        <div class="fade-in">
-          <h1>Radar de Aliados</h1>
-          <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
-            Monitoreo en tiempo real de empresas e instituciones asociadas al ecosistema.
-          </p>
-          
-          <div class="search-container">
-            <input type="text" id="busqueda-radar" class="search-input" placeholder="BUSCAR POR NOMBRE O SECTOR..." onkeyup="filtrarRadar()">
+        <div class="section-header fade-in">
+          <h1>📡 Radar de Aliados (Empresas Preferenciales)</h1>
+          <p>Organizaciones vinculadas al programa de captación de talento UniVector PRO.</p>
+        </div>
+        <div class="grid fade-in">
+          <div class="card">
+            <span class="card-tag">Tecnología e IA</span>
+            <h3>GemaTech Solutions</h3>
+            <div class="card-entity">Sector: Desarrollo y Analítica</div>
+            <p>Empresa líder en soluciones algorítmicas de alto impacto. Busca activamente perfiles de analítica de datos e ingeniería.</p>
+            <a href="mailto:talento@gematech.vector" class="btn">Contactar Reclutador</a>
           </div>
-
-          <div class="grid" id="grid-radar">
-            ${generarTarjetasAliados(appState.empresas)}
+          <div class="card">
+            <span class="card-tag">Finanzas y Bolsa</span>
+            <h3>Zafranal Capital Group</h3>
+            <div class="card-entity">Sector: Banca de Inversión</div>
+            <p>Firma orientada a mercados emergentes y análisis financiero con enfoque de inversión sostenible (ESG).</p>
+            <a href="mailto:carreras@zafranal.vector" class="btn btn-fuchsia">Contactar Reclutador</a>
+          </div>
+          <div class="card">
+            <span class="card-tag">Consultoría Ambiental</span>
+            <h3>Ancla Sostenible S.A.</h3>
+            <div class="card-entity">Sector: Impacto Territorial</div>
+            <p>Proyectos de intervención socio-ambiental, mitigación de riesgo y sostenibilidad corporativa.</p>
+            <a href="mailto:impacto@anclasostenible.org" class="btn">Contactar Reclutador</a>
           </div>
         </div>
       `,
 
       '/laboratorio': () => `
-        <div class="fade-in">
-          <h1>Laboratorio de Experiencias</h1>
-          <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
-            Talleres presenciales, simulaciones relámpago y foros estratégicos para el desarrollo de perfil.
-          </p>
-          
-          <div class="grid">
-            ${generarTarjetasGenericas(appState.talleres, 'VER_DETALLES_TALLER', 'btn secondary')}
+        <div class="section-header fade-in">
+          <h1>🧪 Laboratorio de Experiencias</h1>
+          <p>Talleres formativos e intervenciones estratégicas realizadas por el equipo VECTOR.</p>
+        </div>
+        <div class="grid fade-in">
+          <div class="card">
+            <span class="card-tag">Metodología STAR</span>
+            <h3>Taller Código de Impacto</h3>
+            <p>Formulación estratégica de logros de hoja de vida, estructuración de impactos y preparación técnica de entrevistas.</p>
+          </div>
+          <div class="card">
+            <span class="card-tag">Autonomía Vocacional</span>
+            <h3>La Ruleta de Dilemas</h3>
+            <p>Intervención dinámica en espacio público para el análisis de toma de decisiones y proyección profesional.</p>
+          </div>
+          <div class="card">
+            <span class="card-tag">Simulación Real</span>
+            <h3>Simulador de Selección Relámpago</h3>
+            <p>Sesiones relámpago con evaluadores reales para retroalimentación en tiempo real del perfil del aspirante.</p>
           </div>
         </div>
       `,
 
       '/herramientas': () => `
-        <div class="fade-in">
-          <h1>Caja de Herramientas</h1>
-          <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
-            Aplicaciones interactivas y recursos digitales desarrollados para los participantes del programa.
-          </p>
-          
-          <div class="grid">
-            ${generarTarjetasGenericas(appState.apps, 'EJECUTAR_MÓDULO', 'btn')}
+        <div class="section-header fade-in">
+          <h1>🧰 Caja de Herramientas (Apps)</h1>
+          <p>Software y aplicativos diseñados para acompañar la gestión emocional y técnica.</p>
+        </div>
+        <div class="grid fade-in">
+          <div class="card">
+            <span class="card-tag">Gamificación</span>
+            <h3>Escape Room: Código de Impacto</h3>
+            <p>Aplicación interactiva de resolución de retos para la identificación de logros laborales clave.</p>
+            <button onclick="alert('Iniciando simulador Escape Room...');" class="btn">Lanzar App</button>
+          </div>
+          <div class="card">
+            <span class="card-tag">Gestión Emocional</span>
+            <h3>La Caja de Crisis Interactiva</h3>
+            <p>Módulo interactivo de tarjetas aleatorias para contención y autorregulación en momentos de toma de decisiones.</p>
+            <button onclick="alert('Abriendo Caja de Crisis...');" class="btn btn-fuchsia">Lanzar App</button>
           </div>
         </div>
       `
     };
 
-    // Funciones de Búsqueda y Filtrado
-    window.filtrarRuta = () => {
-      const input = document.getElementById('busqueda-ruta');
-      if (!input) return;
-      const q = input.value.toLowerCase().trim();
+    function openModal(index) {
+      const item = state.liveConvocatorias[index];
+      if (!item) return;
 
-      const resultado = appState.oportunidades.filter(item => {
-        return Object.values(item).some(val => 
-          String(val).toLowerCase().includes(q)
-        );
-      });
+      const modalHtml = `
+        <div class="modal-overlay fade-in" onclick="closeModal(event)">
+          <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">X</button>
+            <h2 style="color:var(--cyan-neon); font-family:var(--font-mono); margin-bottom:1rem;">
+              ${item['Título de la convocatoria'] || item['Cargo'] || 'Detalle de Convocatoria'}
+            </h2>
+            
+            <div style="font-family:var(--font-mono); font-size:0.85rem; line-height:1.6; color:#e2e8f0;">
+              <p><strong>N° Convocatoria:</strong> ${item['Numero de convocatoria'] || 'N/A'}</p>
+              <p><strong>Entidad:</strong> ${item['Nombre de la entidad'] || 'N/A'} (${item['Sector de la entidad'] || 'General'})</p>
+              <p><strong>Cargo:</strong> ${item['Cargo'] || 'N/A'} | <strong>Área:</strong> ${item['Área'] || 'N/A'}</p>
+              <p><strong>Contacto:</strong> ${item['Correo electrónico'] || 'N/A'}</p>
+              <p><strong>Programas Requeridos:</strong> ${item['Programas académicos requeridos'] || 'Todos'}</p>
+              <p><strong>Modalidad:</strong> ${item['Modalidad'] || 'N/A'} | <strong>Horario:</strong> ${item['Horario'] || 'N/A'} (${item['Horario flexible'] === 'Sí' ? 'Flexible' : 'Fijo'})</p>
+              <p><strong>Apoyo Económico:</strong> ${item['Apoyo económico'] || 'N/A'}</p>
+              <p><strong>Tipo de Contrato:</strong> ${item['Tipo de contrato'] || 'N/A'}</p>
+              <p><strong>Ubicación:</strong> ${item['Ciudad'] || 'N/A'} | <strong>Vacantes:</strong> ${item['Vacantes'] || 'N/A'}</p>
+              <p><strong>Fechas:</strong> Cierre: ${item['Fecha de cierre'] || 'Abierta'} | Inicio: ${item['Fecha de inicio de activities'] || item['Fecha de inicio de actividades'] || 'N/A'}</p>
+              
+              <hr style="border-color:var(--border-color); margin:1rem 0;">
+              
+              <p><strong>Descripción del Puesto:</strong></p>
+              <p style="color:var(--text-muted); margin-bottom:1rem;">${item['Descripción'] || 'Sin descripción.'}</p>
 
-      document.getElementById('grid-ruta').innerHTML = generarTarjetasOportunidades(resultado);
-    };
+              <p><strong>Perfil del Aspirante:</strong></p>
+              <p style="color:var(--text-muted); margin-bottom:1.5rem;">${item['Perfil del aspirante'] || 'Sin perfil detallado.'}</p>
 
-    window.filtrarRadar = () => {
-      const input = document.getElementById('busqueda-radar');
-      if (!input) return;
-      const q = input.value.toLowerCase().trim();
+              ${item['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms'] ? `
+                <a href="${item['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms']}" target="_blank" class="btn btn-fuchsia">
+                  Postular Hoja de Vida (Google Forms)
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-root').innerHTML = modalHtml;
+    }
 
-      const resultado = appState.empresas.filter(item => 
-        item.nombre.toLowerCase().includes(q) || 
-        item.sector.toLowerCase().includes(q) ||
-        item.ubicacion.toLowerCase().includes(q)
-      );
+    function closeModal() {
+      document.getElementById('modal-root').innerHTML = '';
+    }
 
-      document.getElementById('grid-radar').innerHTML = generarTarjetasAliados(resultado);
-    };
-
-    window.filtrarConvocatoriasPorEmpresa = (nombreEmpresa) => {
-      window.location.hash = '#/rutaoportunidades';
-      setTimeout(() => {
-        const input = document.getElementById('busqueda-ruta');
-        if (input) {
-          input.value = nombreEmpresa;
-          filtrarRuta();
-        }
-      }, 100);
-    };
-
-    // Router SPA basado en Hash
     function router() {
       const path = location.hash.slice(1) || '/';
-      const render = views[path] || views['/'];
-      const app = document.getElementById('app');
+      const renderView = views[path] || views['/'];
       
-      app.innerHTML = render();
+      document.getElementById('app').innerHTML = renderView();
 
-      const navLinks = document.querySelectorAll('#nav-links a');
-      navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href === `#${path}`) {
-          link.classList.add('active');
-        } else {
-          link.classList.remove('active');
-        }
+      document.querySelectorAll('#nav-menu a').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${path}`);
       });
     }
 
-    // Event Listeners e Inicialización
     window.addEventListener('hashchange', router);
     window.addEventListener('DOMContentLoaded', () => {
-      router();
-      cargarDatosGoogleSheets();
+      fetchLiveData();
     });
   </script>
 </body>
