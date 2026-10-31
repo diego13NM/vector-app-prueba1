@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Caja de Crisis - Navegantes PRO | VECTOR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        neon: {
+                            cyan: '#00f3ff',
+                            magenta: '#d946ef',
+                            red: '#ef4444',
+                            bg: '#050505',
+                            panel: 'rgba(15, 23, 42, 0.8)',
+                            green: '#10b981' // Kept a green for positive actions
+                        }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scanline': 'scanline 8s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 10px rgba(0, 243, 255, 0.5))' },
+                            '50%': { opacity: .7, filter: 'drop-shadow(0 0 25px rgba(0, 243, 255, 0.8))' },
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100vh)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        /* CRT Scanline Effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: var(--tw-colors-neon-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        /* Cyberpunk Button Style */
+        .btn-cyber {
+            background: transparent;
+            border: 2px solid;
+            color: white;
+            text-transform: uppercase;
+            font-family: 'Fira Code', monospace;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .btn-cyber::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: currentColor;
+            z-index: -1;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-cyber:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .btn-cyber:hover {
+            color: #050505; /* Invert text color on hover */
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        /* Color variations for buttons */
+        .btn-cyan { border-color: #00f3ff; color: #00f3ff; }
+        .btn-magenta { border-color: #d946ef; color: #d946ef; }
+        .btn-green { border-color: #10b981; color: #10b981; }
+
+        /* Card specific styles */
+        .crisis-card {
+            background-color: rgba(15, 23, 42, 0.9);
+            border: 1px solid #d946ef;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        /* Input styling */
+        .cyber-input {
+            background-color: #000;
+            border: 1px solid #00f3ff;
+            color: #00f3ff;
+            font-family: 'Fira Code', monospace;
+            resize: none;
+        }
+        .cyber-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+        .cyber-input::placeholder {
+            color: rgba(0, 243, 255, 0.3);
+        }
+
+        /* Animations */
+        @keyframes shake-box {
+            0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
+            15% { transform: translateX(-10px) rotate(-5deg) scale(1.05); }
+            30% { transform: translateX(10px) rotate(5deg) scale(1.05); }
+            45% { transform: translateX(-10px) rotate(-5deg) scale(1.05); }
+            60% { transform: translateX(10px) rotate(5deg) scale(1.05); }
+            75% { transform: translateX(-5px) rotate(-2deg) scale(1.05); }
+            85% { transform: translateX(5px) rotate(2deg) scale(1.05); }
+        }
+
+        .animate-shake-active {
+            animation: shake-box 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Smooth reveal transitions */
+        .reveal-section {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.6s ease-in-out, opacity 0.5s ease-in-out, margin 0.3s ease;
+        }
+
+        .reveal-section.active {
+            max-height: 800px; /* Arbitrary large height to allow content to flow */
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; border-left: 1px solid #333; }
+        ::-webkit-scrollbar-thumb { background: #00f3ff; }
+        ::-webkit-scrollbar-thumb:hover { background: #d946ef; }
+
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4 sm:p-6 font-sans relative">
+    
+    <!-- Decorative Scanline animation -->
+    <div class="fixed inset-0 w-full h-[10px] bg-neon-cyan/20 blur-sm animate-scanline z-0 pointer-events-none"></div>
+
+    <main id="view-box" class="w-full max-w-md flex flex-col items-center justify-center min-h-[80vh] fade-in-up relative z-10">
+        
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h2 class="text-neon-cyan font-mono tracking-widest text-sm mb-2 uppercase">SYS.NAVEGANTES_PRO_<span class="text-neon-red drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">VECTOR</span></h2>
+            <h1 class="text-4xl sm:text-5xl font-mono font-bold tracking-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                > CAJA_DE_<br/>
+                <span class="text-neon-red drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">CRISIS</span>_
+            </h1>
+        </div>
+
+        <!-- The Interactive Box Graphic -->
+        <div class="relative mb-12 w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
+            <!-- Glow effect behind box -->
+            <div class="absolute inset-0 bg-neon-red opacity-20 blur-3xl animate-pulse"></div>
+            
+            <!-- Box Container for Animation -->
+            <div id="box-graphic" class="relative z-10 w-full h-full cursor-pointer transition-transform hover:scale-105 animate-pulse-glow" onclick="drawCard()">
+                <!-- Cyberpunk SVG Box -->
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full animate-float">
+                    <!-- Base glow -->
+                    <path d="M30 80 L170 80 L150 160 L50 160 Z" fill="rgba(239, 68, 68, 0.05)"/>
+                    
+                    <!-- Box Body Wireframe -->
+                    <path d="M30 80 L170 80 L150 160 L50 160 Z" stroke="#ef4444" stroke-width="3" stroke-linejoin="miter"/>
+                    
+                    <!-- Box Lid Wireframe -->
+                    <path d="M20 80 L180 80 L160 40 L40 40 Z" fill="rgba(0, 243, 255, 0.05)" stroke="#00f3ff" stroke-width="3" stroke-linejoin="miter"/>
+                    
+                    <!-- Inner details (Circuit-like) -->
+                    <path d="M80 80 V120 H120 V80" stroke="#ef4444" stroke-width="2" opacity="0.8"/>
+                    <circle cx="100" cy="100" r="12" fill="#050505" stroke="#ef4444" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="4" fill="#00f3ff" class="animate-pulse"/>
+                    
+                    <!-- Tech accents -->
+                    <line x1="45" y1="50" x2="60" y2="50" stroke="#00f3ff" stroke-width="3"/>
+                    <line x1="140" y1="50" x2="155" y2="50" stroke="#00f3ff" stroke-width="3"/>
+                    
+                    <!-- Danger stripes pattern representation -->
+                    <line x1="60" y1="150" x2="70" y2="140" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="75" y1="150" x2="85" y2="140" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="90" y1="150" x2="100" y2="140" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="105" y1="150" x2="115" y2="140" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="120" y1="150" x2="130" y2="140" stroke="#ef4444" stroke-width="2"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Counter & Status -->
+        <div class="glass-panel px-6 py-3 border border-neon-cyan/50 mb-8 flex items-center gap-3">
+            <span class="text-xl font-mono text-neon-cyan">[DATABANKS]</span>
+            <p class="font-mono text-sm text-gray-300">
+                TARJETAS: <span id="counter-text" class="text-neon-magenta font-bold ml-2">10/10</span>
+            </p>
+        </div>
+
+        <!-- Main Action Button -->
+        <button id="btn-draw" onclick="drawCard()" class="w-full sm:w-auto px-8 py-4 btn-cyber btn-cyan text-lg sm:text-xl font-bold flex items-center justify-center gap-3">
+            <span class="text-xl">⚡</span> 
+            <span id="btn-draw-text">EJECUTAR: SACAR TARJETA</span>
+        </button>
+
+    </main>
+
+    <main id="view-card" class="hidden w-full max-w-lg flex-col items-center justify-center min-h-[90vh] py-8 relative z-10">
+        
+        <!-- Header to return -->
+        <button onclick="returnToBox()" class="self-start mb-6 text-neon-cyan hover:text-white font-mono text-sm flex items-center gap-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            < VOLVER_A_SISTEMA
+        </button>
+
+        <!-- The Crisis Card -->
+        <div class="crisis-card w-full p-1 sm:p-2 relative overflow-hidden bg-gradient-to-br from-neon-panel to-black">
+            <!-- Decorative corner brackets -->
+            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-neon-magenta"></div>
+            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-neon-magenta"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-neon-magenta"></div>
+            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-neon-magenta"></div>
+
+            <div class="p-5 sm:p-6">
+                <!-- Card Header -->
+                <div class="flex items-start gap-4 mb-6 relative z-10 border-b border-gray-800 pb-4">
+                    <div class="bg-neon-red/20 text-neon-red border border-neon-red w-10 h-10 flex items-center justify-center font-mono font-bold text-xl shrink-0 shadow-[0_0_10px_rgba(239,68,68,0.5)]">!</div>
+                    <h3 id="card-title" class="text-xl sm:text-2xl font-mono font-bold text-white uppercase leading-tight mt-1">Título de la Crisis</h3>
+                </div>
+
+                <!-- BLOQUE 1: La Crisis (ROJO) -->
+                <div class="bg-neon-red/5 p-4 mb-2 relative z-10 border-l-2 border-neon-red">
+                    <p class="text-xs font-mono text-neon-red uppercase tracking-wider mb-2">>_ LECTURA_OBLIGATORIA:</p>
+                    <p id="card-crisis" class="text-lg font-sans font-normal italic text-gray-200 leading-relaxed">
+                        «Texto de la crisis aquí.»
+                    </p>
+                </div>
+
+                <!-- Botón para revelar deconstrucción -->
+                <button id="btn-reveal-question" onclick="revealQuestion()" class="mt-6 w-full py-3 btn-cyber btn-magenta text-sm flex items-center justify-center gap-2 z-10">
+                    <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    DESCIFRAR_CONFLICTO
+                </button>
+
+                <!-- BLOQUE 2 & 3: Revelados progresivamente -->
+                <div id="reveal-content" class="reveal-section z-10 flex flex-col gap-6">
+                    
+                    <!-- BLOQUE 2: Pregunta (CIAN) -->
+                    <div class="bg-neon-cyan/5 p-4 border-l-2 border-neon-cyan mt-4 shadow-[inset_0_0_20px_rgba(0,243,255,0.05)]">
+                        <p class="text-xs font-mono text-neon-cyan uppercase tracking-wider mb-2">>_ QUERY_ANALÍTICO:</p>
+                        <p id="card-question" class="text-base sm:text-lg font-sans font-medium text-white leading-relaxed">
+                            Pregunta de deconstrucción aquí.
+                        </p>
+                    </div>
+
+                    <!-- BLOQUE 3: Ancla de Emergencia (VERDE) -->
+                    <div class="bg-neon-green/5 p-4 border-l-2 border-neon-green">
+                        <p class="text-xs font-mono text-neon-green uppercase tracking-wider mb-2">>_ PROTOCOLO_DE_ANCLAJE:</p>
+                        <p id="card-anchor-example" class="text-sm font-sans font-medium text-gray-300 mb-4 bg-black/50 p-3 border border-gray-800">
+                            Ejemplo de reencuadre positivo.
+                        </p>
+                        
+                        <label for="user-anchor" class="block text-xs font-mono text-gray-400 mb-2">> INPUT_USUARIO:</label>
+                        <textarea id="user-anchor" rows="3" class="w-full cyber-input p-3 text-sm" placeholder="Define tu propia ancla para reescribir este error..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="w-full flex flex-col sm:flex-row gap-4 mt-8 fade-in-up" style="animation-delay: 0.2s;">
+            <button onclick="drawCard()" class="flex-1 py-3 btn-cyber btn-cyan text-sm flex items-center justify-center gap-2">
+                <span class="text-lg font-mono">[]</span> NUEVA_EXTRACCIÓN
+            </button>
+            <button onclick="showQRModal()" class="flex-1 py-3 btn-cyber btn-green text-sm flex items-center justify-center gap-2">
+                <span class="text-lg">#</span> REGISTRO_QR
+            </button>
+        </div>
+
+    </main>
+
+    <div id="modal-qr" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="bg-[#0f172a] border border-neon-cyan w-full max-w-sm p-1 shadow-[0_0_30px_rgba(0,243,255,0.3)] transform transition-transform scale-95 opacity-0" id="modal-content">
+            <div class="p-6 relative flex flex-col items-center text-center">
+                
+                <button onclick="closeQRModal()" class="absolute top-2 right-2 text-neon-cyan hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+
+                <h2 class="text-xl font-mono font-bold text-white mb-1 mt-4 uppercase">Validación de Sistema</h2>
+                
+                <!-- Updated subtitle as requested -->
+                <p class="text-neon-cyan font-mono text-sm mb-6 bg-neon-cyan/10 px-2 py-1 rounded inline-block">
+                    > REGISTRO DE HORAS DE CORRESPONSABILIDAD_
+                </p>
+                
+                <!-- Actual QR Image -->
+                <div class="w-64 h-64 bg-white mb-6 flex items-center justify-center p-2 relative overflow-hidden border-2 border-neon-magenta shadow-[0_0_15px_rgba(217,70,239,0.5)]">
+                    <img src="QR Asistencia NAVEGANTES.png" alt="QR Asistencia NAVEGANTES" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/400x400/FFF/000?text=QR+No+Encontrado';">
+                    <!-- Tech corners for image container -->
+                    <div class="absolute top-0 left-0 w-2 h-2 bg-neon-magenta"></div>
+                    <div class="absolute top-0 right-0 w-2 h-2 bg-neon-magenta"></div>
+                    <div class="absolute bottom-0 left-0 w-2 h-2 bg-neon-magenta"></div>
+                    <div class="absolute bottom-0 right-0 w-2 h-2 bg-neon-magenta"></div>
+                </div>
+
+                <button onclick="closeQRModal()" class="w-full py-3 btn-cyber btn-cyan text-sm mt-2">
+                    CERRAR_CONEXIÓN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data: The 10 Crisis Cards
+        const cardDeck = [
+            {
+                id: 1,
+                title: "Parálisis por Falta de Experiencia",
+                crisis: "Todas las vacantes que encuentro piden de 1 a 2 años de experiencia previa y siento que solo he estudiado. Mi hoja de vida está en blanco.",
+                question: "¿Qué proyectos de clase, laboratorios, monitorías o voluntariados realizaste en la universidad donde hayas resuelto un problema complejo de tu disciplina?",
+                anchor: "Mi experiencia no es cero; voy a deconstruir mis proyectos de carrera usando la Fórmula del Logro de Impacto."
+            },
+            {
+                id: 2,
+                title: "Ansiedad ante las Entrevistas",
+                crisis: "Me da pánico presentarme a una entrevista de trabajo. Siento que me voy a quedar en blanco o no sabré qué responder.",
+                question: "¿Sabías que no tienes que improvisar? Si estructuras tus historias con la metodología STAR (Situación, Tarea, Acción, Resultado), tendrás el control total.",
+                anchor: "Prepararé 3 historias clave de mi trayectoria universitaria bajo la estructura STAR para responder con seguridad."
+            },
+            {
+                id: 3,
+                title: "Síndrome del Impostor",
+                crisis: "Siento que mis compañeros o egresados de otras instituciones saben mucho más que yo y que mi preparación técnica no es suficiente.",
+                question: "Estás comparando tu proceso interno con la fachada externa de los demás. ¿Cuál es esa fortaleza analítica que has desarrollado en la UNAL?",
+                anchor: "Reconozco la rigurosidad de mi formación en la UNAL; confío en mi capacidad de aprendizaje y resolución de problemas."
+            },
+            {
+                id: 4,
+                title: "Dilema Financiero vs. Precarización",
+                crisis: "Necesito ingresos de forma urgente, pero las únicas ofertas que me salen son mal pagadas, con sobrecarga o contratos informales.",
+                question: "¿Qué criterios mínimos e irrenunciables debe tener una oferta laboral para que garantice tu bienestar y no ponga en riesgo tus derechos?",
+                anchor: "Evaluaré las vacantes con una lista de chequeo de trabajo digno y exigiré claridad antes de aceptar cualquier oferta."
+            },
+            {
+                id: 5,
+                title: "Incertidumbre Vocacional",
+                crisis: "Tengo miedo de graduarme y darme cuenta de que no me gusta ejercer lo que estudié o no tener claridad de hacia dónde ir.",
+                question: "¿Tu título universitario te encasilla en una sola tarea, o te otorgó habilidades analíticas adaptables a múltiples sectores?",
+                anchor: "Mi carrera es un punto de partida, no una condena; utilizaré mis competencias transversales para explorar diferentes rutas."
+            },
+            {
+                id: 6,
+                title: "Creencia de Falta de Redes",
+                crisis: "Siento que no voy a conseguir trabajo en mi área porque no tengo contactos, familiares influyentes ni palancas en el sector.",
+                question: "¿Sabías que una red profesional se basa en construir conexiones genuinas, visibilizar tus proyectos y activar a la comunidad de egresados?",
+                anchor: "Activaré mi red universitaria conectando con profesores, compañeros y egresados a través de la Brújula Digital."
+            },
+            {
+                id: 7,
+                title: "Saturación del Mercado Laboral",
+                crisis: "Siento que soy un egresado más entre cientos de candidatos que se postulan exactamente a la misma convocatoria laboral.",
+                question: "¿Cómo estás comunicando tus resultados? Un candidato que presenta logros cuantitativos estructurados destaca de inmediato.",
+                anchor: "Diferenciaré mi perfil redactando mi resumen profesional con verbos de acción y resultados cuantitativos medibles."
+            },
+            {
+                id: 8,
+                title: "Exigencias Elevadas de Posgrado",
+                crisis: "En la mayoría de vacantes interesantes piden maestrías, especializaciones o certificaciones costosas que no puedo pagar.",
+                question: "¿Realmente la vacante exige el título de entrada, o estás subestimando el valor práctico de tu trabajo de grado y asignaturas avanzadas?",
+                anchor: "Mapearé opciones de financiación en el Portafolio mientras potencio el valor práctico e inmediato de mis conocimientos de pregrado."
+            },
+            {
+                id: 9,
+                title: "Frustración y Miedo al Rechazo",
+                crisis: "He enviado mi hoja de vida a varias convocatorias y no me llaman ni a primera entrevista. Siento que estoy perdiendo el tiempo.",
+                question: "Un descarte no juzga tu valor profesional; casi siempre indica un CV genérico. ¿Has personalizado tu hoja de vida para esa oferta?",
+                anchor: "Adaptaré mi hoja de vida a los requerimientos específicos de cada oferta para aumentar el porcentaje de coincidencia."
+            },
+            {
+                id: 10,
+                title: "Presión Social y Familiar",
+                crisis: "Siento una gran presión de mi familia por conseguir rápidamente un cargo prestigioso para demostrar que el estudio valió la pena.",
+                question: "¿El éxito profesional se mide por las expectativas de otros, o por la construcción consciente y sostenible de tu propio proyecto?",
+                anchor: "Construiré mi ruta profesional a mi propio ritmo, priorizando mi salud mental, aprendizaje continuo y convicciones."
+            }
+        ];
+
+        // State Management
+        let availableIndices = [];
+        let isAnimating = false;
+
+        // DOM Elements
+        const viewBox = document.getElementById('view-box');
+        const viewCard = document.getElementById('view-card');
+        const boxGraphic = document.getElementById('box-graphic');
+        const counterText = document.getElementById('counter-text');
+        const btnDraw = document.getElementById('btn-draw');
+        const btnDrawText = document.getElementById('btn-draw-text');
+        
+        const cardTitle = document.getElementById('card-title');
+        const cardCrisis = document.getElementById('card-crisis');
+        const cardQuestion = document.getElementById('card-question');
+        const cardAnchorExample = document.getElementById('card-anchor-example');
+        const userAnchorInput = document.getElementById('user-anchor');
+        
+        const btnRevealQuestion = document.getElementById('btn-reveal-question');
+        const revealContent = document.getElementById('reveal-content');
+        
+        const modalQR = document.getElementById('modal-qr');
+        const modalContent = document.getElementById('modal-content');
+
+        function init() {
+            resetDeck();
+        }
+
+        function resetDeck() {
+            availableIndices = Array.from({ length: cardDeck.length }, (_, i) => i);
+            updateCounter();
+            btnDrawText.innerText = "EJECUTAR: SACAR TARJETA";
+            
+            // Reset to cyan button style
+            btnDraw.classList.remove('btn-magenta');
+            btnDraw.classList.add('btn-cyan');
+        }
+
+        function updateCounter() {
+            counterText.innerText = `${availableIndices.length}/10`;
+        }
+
+        function updateCounter() {
+            counterText.innerText = `${availableIndices.length} / ${cardDeck.length}`;
+        }
+
+        function drawCard() {
+            if (isAnimating) return;
+
+            // Handle empty deck
+            if (availableIndices.length === 0) {
+                resetDeck();
+                return;
+            }
+
+            isAnimating = true;
+
+            // 1. Shake animation
+            boxGraphic.classList.add('animate-shake-active');
+            
+            // Add a slight haptic feedback if supported (mostly mobile)
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 50, 50]); 
+            }
+
+            // 2. Wait for shake to finish, then select card and transition
+            setTimeout(() => {
+                boxGraphic.classList.remove('animate-shake-active');
+                
+                // Select random card
+                const randomPos = Math.floor(Math.random() * availableIndices.length);
+                const cardIndex = availableIndices[randomPos];
+                
+                // Remove from available
+                availableIndices.splice(randomPos, 1);
+                updateCounter();
+                
+                // Update button if empty
+                if (availableIndices.length === 0) {
+                    btnDrawText.innerText = "REINICIAR_BASE_DE_DATOS";
+                    btnDraw.classList.remove('btn-cyan');
+                    btnDraw.classList.add('btn-magenta');
+                }
+
+                populateCard(cardDeck[cardIndex]);
+                switchToCardView();
+                
+                isAnimating = false;
+            }, 600); // Duration of shake animation
+        }
+
+        function populateCard(cardData) {
+            // Reset card UI state
+            btnRevealQuestion.style.display = 'flex';
+            revealContent.classList.remove('active');
+            userAnchorInput.value = '';
+
+            // Populate text
+            cardTitle.innerText = cardData.title;
+            cardCrisis.innerText = `«${cardData.crisis}»`;
+            cardQuestion.innerText = cardData.question;
+            cardAnchorExample.innerText = cardData.anchor;
+        }
+
+        function switchToCardView() {
+            viewBox.classList.add('hidden');
+            viewCard.classList.remove('hidden');
+            viewCard.classList.add('flex');
+            
+            // Re-trigger animation
+            const cardElement = viewCard.querySelector('.crisis-card');
+            cardElement.classList.remove('fade-in-up');
+            void cardElement.offsetWidth; // trigger reflow
+            cardElement.classList.add('fade-in-up');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function returnToBox() {
+            viewCard.classList.add('hidden');
+            viewCard.classList.remove('flex');
+            
+            viewBox.classList.remove('hidden');
+            viewBox.classList.add('flex');
+        }
+
+        function revealQuestion() {
+            // Hide button
+            btnRevealQuestion.style.display = 'none';
+            // Show content smoothly
+            revealContent.classList.add('active');
+            
+            // Scroll down slightly if needed on small screens
+            setTimeout(() => {
+                revealContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        function showQRModal() {
+            modalQR.classList.remove('hidden');
+            modalQR.classList.add('flex');
+            
+            // Trigger transition
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeQRModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modalQR.classList.add('hidden');
+                modalQR.classList.remove('flex');
+            }, 300); // match transition duration
+        }
+
+        // Initialize on load
+        window.onload = init;
+
+    </script>
+</body>
+</html>
