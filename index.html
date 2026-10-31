@@ -401,6 +401,21 @@
     </div>
   </div>
 
+<!-- Modal Caja de Crisis (ESTO ES LO QUE DEBES PEGAR AQUÍ) -->
+  <div id="crisisModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8" style="display: none;">
+      <div class="relative w-full max-w-5xl h-[85vh] bg-[#050505] border border-fuchsia-500 shadow-[0_0_30px_rgba(217,70,239,0.3)] flex flex-col">
+          <div class="flex justify-between items-center p-3 border-b border-fuchsia-500/30 bg-slate-900">
+              <span class="text-fuchsia-500 font-mono text-sm uppercase">SYS.MODULO_CRISIS_V1.0</span>
+              <button onclick="closeCrisisModal()" class="text-gray-400 hover:text-fuchsia-500 transition-colors text-xl font-bold p-1">
+                  &#10005;
+              </button>
+          </div>
+          <div class="flex-1 w-full bg-black relative">
+              <iframe src="la_caja_de_crisis.html" class="absolute inset-0 w-full h-full border-none"></iframe>
+          </div>
+      </div>
+  </div>
+  
   <script>
     const RAW_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5e06JkcNoyg4LPo8hJluVJr8i1mhEcR_2vLd6wFAul5iYIHwk6YZ2ht4J96X5_SkBb1RgBC_hUcCO/pub?output=csv";
 
@@ -673,7 +688,8 @@
             <span class="card-tag">Gestión Emocional</span>
             <h3>La Caja de Crisis Interactiva</h3>
             <p>Módulo interactivo de tarjetas aleatorias para contención y autorregulación en momentos de toma de decisiones.</p>
-            <button onclick="alert('Abriendo Caja de Crisis...');" class="btn btn-fuchsia">Lanzar App</button>
+            <button onclick="openCrisisModal()" class="btn">Lanzar App (Integrada)</button>
+<a href="la_caja_de_crisis.html" target="_blank" class="btn btn-fuchsia" style="margin-top:0.5rem;">Pantalla Completa ↗</a>
           </div>
         </div>
       `
@@ -735,6 +751,21 @@ function openEscapeRoomModal() {
       document.getElementById('escapeRoomIframe').src = '';
       document.getElementById('escapeRoomModal').style.display = 'none';
     }
+
+    // --- FUNCIONES DE LA CAJA DE CRISIS ---
+    function openCrisisModal() {
+      document.getElementById('crisisModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden'; 
+    }
+
+    function closeCrisisModal() {
+      document.getElementById('crisisModal').style.display = 'none';
+      document.body.style.overflow = 'auto'; 
+    }
+    // --------------------------------------
+
+    function router() {
+      const path = location.hash.slice(1) || '/';
     function router() {
       const path = location.hash.slice(1) || '/';
       const renderView = views[path] || views['/'];
