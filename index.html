@@ -193,6 +193,17 @@
       color: rgba(0, 243, 255, 0.5);
     }
 
+    .select-input {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--cyan-neon);
+      color: var(--cyan-neon);
+      font-family: var(--font-mono);
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -275,6 +286,44 @@
 
     .meta-box div { margin-bottom: 0.3rem; }
     .meta-box strong { color: var(--cyan-neon); }
+
+    .table-container {
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .custom-table th {
+      font-family: var(--font-mono);
+      color: var(--cyan-neon);
+      border-bottom: 1px solid var(--cyan-neon);
+      padding: 0.85rem 0.6rem;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .custom-table td {
+      padding: 0.85rem 0.6rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+      vertical-align: middle;
+    }
+
+    .custom-table tr:hover {
+      background: rgba(0, 243, 255, 0.04);
+    }
 
     .btn {
       display: block;
@@ -379,6 +428,7 @@
       <nav id="nav-menu">
         <a href="#/">Inicio</a>
         <a href="#/rutaoportunidades">Ruta de Oportunidades</a>
+        <a href="#/becas">Becas y Posgrados</a>
         <a href="#/radaraliados">Radar de Aliados</a>
         <a href="#/laboratorio">Laboratorio</a>
         <a href="#/herramientas">Caja de Herramientas</a>
@@ -413,11 +463,88 @@
   <script>
     const RAW_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5e06JkcNoyg4LPo8hJluVJr8i1mhEcR_2vLd6wFAul5iYIHwk6YZ2ht4J96X5_SkBb1RgBC_hUcCO/pub?output=csv";
 
+    const becasData = [
+      {
+        nombre: "Beca por Grado de Honor de Pregrado",
+        tipo: "Interna UNAL",
+        nivel: "Maestría / Doctorado",
+        cobertura: "Exención del 100% de los derechos académicos del programa.",
+        entidad: "Dirección Nacional de Posgrados / DARA",
+        requisitos: "Haber obtenido la distinción 'Grado de Honor' en pregrado UNAL.",
+        link: "https://posgrados.unal.edu.co/becas/"
+      },
+      {
+        nombre: "Beca Asistente Docente",
+        tipo: "Interna UNAL",
+        nivel: "Maestría (Inv.), Doctorado, Esp. Médicas",
+        cobertura: "Exención de derechos académicos + Estímulo mensual de sostenimiento.",
+        entidad: "Vicedecanaturas Académicas / Facultades UNAL",
+        requisitos: "Apoyo en labores docentes, preparación de clases, evaluación y cátedras.",
+        link: "https://posgrados.unal.edu.co/becas/"
+      },
+      {
+        nombre: "Beca Auxiliar Docente",
+        tipo: "Interna UNAL",
+        nivel: "Especialización, Maestría, Doctorado",
+        cobertura: "Descuento o exención parcial/total + Incentivo económico.",
+        entidad: "Facultades / Departamentos Académicos",
+        requisitos: "Buen desempeño académico y apoyo a profesores en monitorías y talleres.",
+        link: "https://posgrados.unal.edu.co/becas/"
+      },
+      {
+        nombre: "Exención por Proyectos de Investigación",
+        tipo: "Interna UNAL",
+        nivel: "Maestría, Doctorado",
+        cobertura: "Financiación parcial o total de la matrícula.",
+        entidad: "Vicerrectoría de Investigación (VRI) / Grupos Inv.",
+        requisitos: "Estar vinculado a un proyecto de investigación aprobado por la VRI o Facultad.",
+        link: "https://investigacion.unal.edu.co"
+      },
+      {
+        nombre: "Becas MinCiencias (Bicentenario / Alto Nivel)",
+        tipo: "Externa",
+        nivel: "Maestría (Inv.), Doctorado",
+        cobertura: "Cobertura de matrícula hasta el tope de convocatoria + Sostenimiento mensual.",
+        entidad: "Ministerio de Ciencia, Tecnología e Innovación",
+        requisitos: "Admitido/matriculado en posgrado UNAL y cumplir términos de MinCiencias.",
+        link: "https://minciencias.gov.co/convocatorias"
+      },
+      {
+        nombre: "Beca Fundación Juan Pablo Gutiérrez Cáceres",
+        tipo: "Externa",
+        nivel: "Maestría",
+        cobertura: "Financiación de un porcentaje de la matrícula o derechos académicos.",
+        entidad: "Fundación JPGC / Convenio UNAL",
+        requisitos: "Alto mérito académico y necesidad de apoyo financiero demostrada.",
+        link: "https://fundacionjpgc.org/becas-de-posgrado-en-convenio-con-la-universidad-nacional-de-colombia/"
+      },
+      {
+        nombre: "Becas AUIP (Movilidad y Posgrado)",
+        tipo: "Externa",
+        nivel: "Maestría, Doctorado",
+        cobertura: "Becas de movilidad académica, bolsas de viaje y exenciones de matrícula.",
+        entidad: "Asociación Universitaria Iberoamericana de Postgrado",
+        requisitos: "Estar vinculado a una institución o red perteneciente a AUIP.",
+        link: "https://auip.org/es/becasauip"
+      },
+      {
+        nombre: "Becas SGR / Fondos Regionales",
+        tipo: "Externa",
+        nivel: "Maestría, Doctorado",
+        cobertura: "Financiación de matrícula y sostenimiento según convocatoria departamental.",
+        entidad: "Gobernaciones / Sistema General de Regalías",
+        requisitos: "Propuestas alineadas con los Planes de Desarrollo Departamentales y RETOS.",
+        link: "https://minciencias.gov.co/convocatorias"
+      }
+    ];
+
     const state = {
       liveConvocatorias: [],
       isLoading: true,
       loadError: false,
-      searchTerm: ''
+      searchTerm: '',
+      becasSearchTerm: '',
+      becasTypeFilter: 'ALL'
     };
 
     function parseCSV(text) {
@@ -522,24 +649,31 @@
           </div>
 
           <div class="card">
+            <span class="card-tag">Financiación</span>
+            <h3>Becas y Posgrados</h3>
+            <p>Opciones institucionales y externas para la financiación de estudios de posgrado e investigación.</p>
+            <a href="#/becas" class="btn btn-fuchsia">Ver Becas</a>
+          </div>
+
+          <div class="card">
             <span class="card-tag">Red Estratégica</span>
             <h3>Radar de Aliados</h3>
             <p>Catálogo de organizaciones y empresas con convenios directos y preferencia por egresados UniVector.</p>
-            <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados</a>
+            <a href="#/radaraliados" class="btn">Ver Aliados</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Formación Práctica</span>
             <h3>Laboratorio de Experiencias</h3>
             <p>Talleres de formulación de logros (Método STAR), simulación de selección y gestión vocacional.</p>
-            <a href="#/laboratorio" class="btn">Ver Talleres</a>
+            <a href="#/laboratorio" class="btn btn-fuchsia">Ver Talleres</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Software y Apps</span>
             <h3>Caja de Herramientas</h3>
             <p>Aplicaciones interactivas creadas para dinamizar la autogestión de carrera y resolución de crisis.</p>
-            <a href="#/herramientas" class="btn btn-fuchsia">Abrir Apps</a>
+            <a href="#/herramientas" class="btn">Abrir Apps</a>
           </div>
         </div>
       `,
@@ -607,6 +741,75 @@
                 </div>
               </div>
             `).join('')}
+          </div>
+        `;
+      },
+
+      '/becas': () => {
+        const filtered = becasData.filter(b => {
+          const q = state.becasSearchTerm.toLowerCase();
+          const matchesSearch = (
+            b.nombre.toLowerCase().includes(q) ||
+            b.entidad.toLowerCase().includes(q) ||
+            b.requisitos.toLowerCase().includes(q) ||
+            b.nivel.toLowerCase().includes(q) ||
+            b.cobertura.toLowerCase().includes(q)
+          );
+          const matchesType = state.becasTypeFilter === 'ALL' || b.tipo.includes(state.becasTypeFilter);
+          return matchesSearch && matchesType;
+        });
+
+        return `
+          <div class="section-header fade-in">
+            <h1>Becas y Financiación de Posgrado</h1>
+            <p>Opciones institucionales y externas para la financiación de estudios de posgrado e investigación.</p>
+          </div>
+
+          <div class="controls-bar fade-in">
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Buscar por nombre de beca, entidad, requisito o nivel..."
+              value="${state.becasSearchTerm}"
+              oninput="state.becasSearchTerm = this.value; router();"
+            />
+            <select class="select-input" onchange="state.becasTypeFilter = this.value; router();">
+              <option value="ALL" ${state.becasTypeFilter === 'ALL' ? 'selected' : ''}>Todos los tipos</option>
+              <option value="Interna UNAL" ${state.becasTypeFilter === 'Interna UNAL' ? 'selected' : ''}>Interna UNAL</option>
+              <option value="Externa" ${state.becasTypeFilter === 'Externa' ? 'selected' : ''}>Externa</option>
+            </select>
+          </div>
+
+          <div class="table-container fade-in">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Nombre de la Beca</th>
+                  <th>Tipo</th>
+                  <th>Nivel Aplicable</th>
+                  <th>Cobertura / Beneficio</th>
+                  <th>Entidad Administradora</th>
+                  <th>Requisitos Principales</th>
+                  <th style="text-align:center;">Enlace</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filtered.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">No se encontraron becas que coincidan con los criterios de búsqueda.</td></tr>' : ''}
+                ${filtered.map(b => `
+                  <tr>
+                    <td style="font-weight:600; color:#fff;">${b.nombre}</td>
+                    <td><span class="card-tag" style="margin-bottom:0; font-size:0.65rem;">${b.tipo}</span></td>
+                    <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--cyan-neon);">${b.nivel}</td>
+                    <td>${b.cobertura}</td>
+                    <td>${b.entidad}</td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${b.requisitos}</td>
+                    <td style="text-align:center;">
+                      <a href="${b.link}" target="_blank" class="btn btn-fuchsia" style="padding:0.35rem 0.6rem; font-size:0.75rem; display:inline-block; width:auto;">Ver ↗</a>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
         `;
       },
