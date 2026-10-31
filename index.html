@@ -393,6 +393,7 @@
   </footer>
 
   <div id="modal-root"></div>
+  
   <!-- VENTANA FLOTANTE DEL ESCAPE ROOM -->
   <div id="escapeRoomModal" class="modal-overlay" style="display: none; z-index: 2000;" onclick="closeEscapeRoomModal()">
     <div class="modal-content" style="max-width: 90vw; height: 90vh; padding: 2.5rem 1rem 1rem 1rem;" onclick="event.stopPropagation()">
@@ -401,18 +402,11 @@
     </div>
   </div>
 
-<!-- Modal Caja de Crisis (ESTO ES LO QUE DEBES PEGAR AQUÍ) -->
-  <div id="crisisModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8" style="display: none;">
-      <div class="relative w-full max-w-5xl h-[85vh] bg-[#050505] border border-fuchsia-500 shadow-[0_0_30px_rgba(217,70,239,0.3)] flex flex-col">
-          <div class="flex justify-between items-center p-3 border-b border-fuchsia-500/30 bg-slate-900">
-              <span class="text-fuchsia-500 font-mono text-sm uppercase">SYS.MODULO_CRISIS_V1.0</span>
-              <button onclick="closeCrisisModal()" class="text-gray-400 hover:text-fuchsia-500 transition-colors text-xl font-bold p-1">
-                  &#10005;
-              </button>
-          </div>
-          <div class="flex-1 w-full bg-black relative">
-              <iframe src="la_caja_de_crisis.html" class="absolute inset-0 w-full h-full border-none"></iframe>
-          </div>
+  <!-- Modal Caja de Crisis -->
+  <div id="crisisModal" class="modal-overlay" style="display: none; z-index: 2000;" onclick="closeCrisisModal()">
+      <div class="modal-content" style="max-width: 90vw; height: 90vh; padding: 2.5rem 1rem 1rem 1rem; border-color: var(--fuchsia-neon); box-shadow: 0 0 30px var(--fuchsia-glow);" onclick="event.stopPropagation()">
+          <button class="modal-close" onclick="closeCrisisModal()">X</button>
+          <iframe src="la_caja_de_crisis.html" style="width: 100%; height: 100%; border: none; background: #0a0e17; border-radius: 8px;"></iframe>
       </div>
   </div>
   
@@ -682,14 +676,14 @@
             <h3>Escape Room: Código de Impacto</h3>
             <p>Aplicación interactiva de resolución de retos para la identificación de logros laborales clave.</p>
             <button onclick="openEscapeRoomModal()" class="btn">Lanzar App (Integrada)</button>
-<a href="escaperoom VECTOR.html" target="_blank" class="btn btn-fuchsia" style="margin-top:0.5rem;">Pantalla Completa ↗</a>
+            <a href="escaperoom VECTOR.html" target="_blank" class="btn btn-fuchsia" style="margin-top:0.5rem;">Pantalla Completa ↗</a>
           </div>
           <div class="card">
             <span class="card-tag">Gestión Emocional</span>
             <h3>La Caja de Crisis Interactiva</h3>
             <p>Módulo interactivo de tarjetas aleatorias para contención y autorregulación en momentos de toma de decisiones.</p>
             <button onclick="openCrisisModal()" class="btn">Lanzar App (Integrada)</button>
-<a href="la_caja_de_crisis.html" target="_blank" class="btn btn-fuchsia" style="margin-top:0.5rem;">Pantalla Completa ↗</a>
+            <a href="la_caja_de_crisis.html" target="_blank" class="btn btn-fuchsia" style="margin-top:0.5rem;">Pantalla Completa ↗</a>
           </div>
         </div>
       `
@@ -742,7 +736,8 @@
     function closeModal() {
       document.getElementById('modal-root').innerHTML = '';
     }
-function openEscapeRoomModal() {
+
+    function openEscapeRoomModal() {
       document.getElementById('escapeRoomIframe').src = 'escaperoom VECTOR.html';
       document.getElementById('escapeRoomModal').style.display = 'flex';
     }
@@ -752,7 +747,6 @@ function openEscapeRoomModal() {
       document.getElementById('escapeRoomModal').style.display = 'none';
     }
 
-    // --- FUNCIONES DE LA CAJA DE CRISIS ---
     function openCrisisModal() {
       document.getElementById('crisisModal').style.display = 'flex';
       document.body.style.overflow = 'hidden'; 
@@ -762,10 +756,7 @@ function openEscapeRoomModal() {
       document.getElementById('crisisModal').style.display = 'none';
       document.body.style.overflow = 'auto'; 
     }
-    // --------------------------------------
 
-    function router() {
-      const path = location.hash.slice(1) || '/';
     function router() {
       const path = location.hash.slice(1) || '/';
       const renderView = views[path] || views['/'];
