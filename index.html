@@ -287,6 +287,33 @@
     .meta-box div { margin-bottom: 0.3rem; }
     .meta-box strong { color: var(--cyan-neon); }
 
+    .links-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .link-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      background: rgba(0, 243, 255, 0.1);
+      color: var(--cyan-neon);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      border-radius: 3px;
+      text-decoration: none;
+      word-break: break-all;
+      transition: all 0.2s;
+    }
+
+    .link-badge:hover {
+      background: var(--cyan-neon);
+      color: var(--bg-dark);
+      box-shadow: 0 0 8px var(--cyan-neon);
+    }
+
     .table-container {
       overflow-x: auto;
       background: var(--bg-card);
@@ -429,6 +456,7 @@
         <a href="#/">Inicio</a>
         <a href="#/rutaoportunidades">Ruta de Oportunidades</a>
         <a href="#/becas">Becas y Posgrados</a>
+        <a href="#/egresadosempresarios">Egresados Empresarios</a>
         <a href="#/radaraliados">Radar de Aliados</a>
         <a href="#/laboratorio">Laboratorio</a>
         <a href="#/herramientas">Caja de Herramientas</a>
@@ -538,13 +566,304 @@
       }
     ];
 
+    const egresadosEmpresariosData = [
+      {
+        nombre: "MANSIÓN AURA MARÍA SAS",
+        sector: "Servicios / Creación Audiovisual",
+        direccion: "Calle 17C Sur 10B 36 Este, Bogotá",
+        telefono: "305 774 3356 / 312 386 7133",
+        links: [
+          { name: "Sitio Web", url: "https://mansionauramaria.com" },
+          { name: "Instagram", url: "https://instagram.com/mansionauramaria" },
+          { name: "Facebook", url: "https://facebook.com/MansionAuraMAriaSAS" },
+          { name: "TikTok", url: "https://tiktok.com/@mama_innovacion" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/mansion-aura-maria" },
+          { name: "YouTube", url: "https://youtube.com/@mansionauramaria" }
+        ]
+      },
+      {
+        nombre: "CMC OUTSOURCING & AUDITORÍA S.A.S",
+        sector: "Servicios",
+        direccion: "Cr 58 B 130 61 To 1 Ap 202",
+        telefono: "314 857 5820",
+        links: [
+          { name: "Sitio Web", url: "https://www.cmccolombia.com" },
+          { name: "Instagram", url: "https://instagram.com/cmcsas1" },
+          { name: "Facebook", url: "https://facebook.com/cmcoutsourcingyauditoria" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/cmc-outsourcing-auditoria" }
+        ]
+      },
+      {
+        nombre: "CORTES ASOCIADOS, INVESTIGACIONES ECONÓMICAS S.A.S",
+        sector: "Terciario",
+        direccion: "Calle 105a No. 14-92 Oficina 413",
+        telefono: "316 468 6754 / 321 432 2733",
+        links: [
+          { name: "LinkedIn", url: "https://linkedin.com/company/invescor-sas" }
+        ]
+      },
+      {
+        nombre: "INGEPLANT INGENIERIA EN NUTRICION DE CULTIVOS S.A.S.",
+        sector: "Abonos y Compuestos Inorgánicos",
+        direccion: "Transversal 4 No. 13 A 137",
+        telefono: "320 327 8382",
+        links: [
+          { name: "Sitio Web", url: "https://www.ingeplant.co" },
+          { name: "Facebook", url: "https://facebook.com/ingeplant" },
+          { name: "Instagram", url: "https://instagram.com/ingeplant" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/ingeplan" },
+          { name: "TikTok", url: "https://tiktok.com/@ingeplant" }
+        ]
+      },
+      {
+        nombre: "BONA INGENIEROS SAS",
+        sector: "Servicios / Ingeniería",
+        direccion: "Kr 72C #23-13",
+        telefono: "311 269 8837",
+        links: [
+          { name: "Sitio Web", url: "https://www.bonaingenieros.com" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/bona-ingenieros" }
+        ]
+      },
+      {
+        nombre: "FINANZCONT S.A.S",
+        sector: "Servicios Financieros / Contables",
+        direccion: "Cr 16 96 64",
+        telefono: "305 773 1163",
+        links: [
+          { name: "Sitio Web", url: "https://www.finanzcont.com" },
+          { name: "Facebook", url: "https://facebook.com/finanzcont" },
+          { name: "Instagram", url: "https://instagram.com/finanzcont" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/finanzcont" }
+        ]
+      },
+      {
+        nombre: "CAPITALIZANDO DATOS S.A.S",
+        sector: "Inteligencia Artificial & Datos",
+        direccion: "Calle 64 F # 73 B 13",
+        telefono: "302 709 8827",
+        links: [
+          { name: "Sitio Web", url: "https://capitalizandodatos.com.co" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/capitalizandodatos" }
+        ]
+      },
+      {
+        nombre: "ASOCIACION RED DE EGRESADOS EMPRESARIOS UNAL",
+        sector: "Asociación sin ánimo de lucro",
+        direccion: "Calle 44 B 50-20, Bogotá D.C.",
+        telefono: "302 709 8827",
+        links: [
+          { name: "Sitio Web", url: "https://reune.co" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/reune" }
+        ]
+      },
+      {
+        nombre: "SOLUCIONES EMPRESARIALES CYMA LTDA",
+        sector: "Contador Público / Consultoría",
+        direccion: "Calle 97 A 60 D 48",
+        telefono: "316 694 0892",
+        links: [
+          { name: "Sitio Web", url: "https://solucyma.com" },
+          { name: "Facebook", url: "https://facebook.com/CYMASoluciones" },
+          { name: "Instagram", url: "https://instagram.com/solucionescyma" }
+        ]
+      },
+      {
+        nombre: "ROMTELL NATURAL PLANTS - BY ABS INDUSTRIAS S.A.S",
+        sector: "Agroindustria Alimentos",
+        direccion: "Calle 18 # 4-74 Km 1 Vía Neiva-Palermo, Terpel Mz 1 Bod. 3",
+        telefono: "321 353 4639 / 318 378 9934",
+        links: [
+          { name: "Sitio Web", url: "https://romtellnaturalplants.com" },
+          { name: "Facebook", url: "https://facebook.com/romtell.abs.ind" },
+          { name: "Instagram", url: "https://instagram.com/romtell_abs_ind" },
+          { name: "TikTok", url: "https://tiktok.com/@zumodelimonnatural" }
+        ]
+      },
+      {
+        nombre: "INVESTORS GROUP LTDA",
+        sector: "Tecnología, IA y Analítica",
+        direccion: "Cra 26 #30a-56",
+        telefono: "322 383 8927",
+        links: [
+          { name: "Facebook", url: "https://facebook.com/kipaexpert" },
+          { name: "Instagram", url: "https://instagram.com/kipaexpert" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/kipaexpert" },
+          { name: "YouTube", url: "https://youtube.com/@kipaexpert" }
+        ]
+      },
+      {
+        nombre: "MEDICAL TARGET E.U.",
+        sector: "Salud",
+        direccion: "Carrera 19 A # 82 - 85 Of. 409 Edificio C.M.C. - Bogotá",
+        telefono: "315 382 4753 / 321 209 7075",
+        links: [
+          { name: "Sitio Web", url: "https://medicaltarget.co" },
+          { name: "Instagram", url: "https://instagram.com/medicaltargetplus" }
+        ]
+      },
+      {
+        nombre: "PRAXIS INNOVACIÓN ESTRATÉGICA SAS",
+        sector: "Consultoría en Gestión e Ingeniería",
+        direccion: "Cr 50 No. 174 B 03 In 6 Ap 401",
+        telefono: "(57) 315 625 5556",
+        links: [
+          { name: "Sitio Web", url: "https://www.praxis-innovacion.com" },
+          { name: "YouTube", url: "https://youtube.com/@PRAXISIMASDE" }
+        ]
+      },
+      {
+        nombre: "EULOGIO DIBUJOS ANIMADOS EDUCATIVOS S.A.S.",
+        sector: "Creación Audiovisual / Educación",
+        direccion: "Calle 69 N. 4-95",
+        telefono: "321 977 2073",
+        links: [
+          { name: "Sitio Web", url: "https://www.eulogio.org" },
+          { name: "Facebook", url: "https://facebook.com/EulogioDibujosA" },
+          { name: "Instagram", url: "https://instagram.com/eulogio_plataforma_educativa" },
+          { name: "YouTube", url: "https://youtube.com/@EulogioDibujosEducativos" }
+        ]
+      },
+      {
+        nombre: "AIG ASESORES INTEGRALES EN GESTION SAS",
+        sector: "Servicios Financieros y Legales",
+        direccion: "Calle 47 Sur #72 L 57",
+        telefono: "304 550 5649 / 321 432 2733",
+        links: [
+          { name: "Sitio Web", url: "https://asesoresaig.com" },
+          { name: "Facebook", url: "https://facebook.com/AIGAsesoresIntegralesenGestiónSAS" },
+          { name: "X (Twitter)", url: "https://twitter.com/AigGestion" },
+          { name: "Instagram", url: "https://instagram.com/aig_asesores_gestion" }
+        ]
+      },
+      {
+        nombre: "FUNDACION MUSICA CON PASSIONE",
+        sector: "Espectáculos Musicales (9007)",
+        direccion: "Carrera 55 D No 175-31",
+        telefono: "601 525 3064",
+        links: [
+          { name: "Sitio Web", url: "https://musicaconpassione.com" },
+          { name: "Facebook", url: "https://facebook.com/Musicaconpassione" },
+          { name: "Instagram", url: "https://instagram.com/musicaconpassione" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/musiconpass" },
+          { name: "YouTube", url: "https://youtube.com" }
+        ]
+      },
+      {
+        nombre: "FUNERARIA PARA MASCOTAS FUNERAVET SAS",
+        sector: "Servicios Mascotas",
+        direccion: "Calle 70 A 53 41",
+        telefono: "321 476 9276",
+        links: [
+          { name: "Sitio Web", url: "https://Funeravet.com" },
+          { name: "Facebook", url: "https://facebook.com/funeravet" },
+          { name: "Instagram", url: "https://instagram.com/funeravet" }
+        ]
+      },
+      {
+        nombre: "LOGO TEXO S.A.S",
+        sector: "Servicios Tecnológicos",
+        direccion: "Cr 44 A 22 A 54 Ap 404",
+        telefono: "318 330 2793 / 316 617 0106 / 316 026 3773",
+        links: [
+          { name: "Sitio Web", url: "https://logotexo.com" },
+          { name: "Facebook", url: "https://facebook.com/logotexo" },
+          { name: "X (Twitter)", url: "https://x.com/LogoTexo" },
+          { name: "Instagram", url: "https://instagram.com/logotexo_sas" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/logo-texo-s-a-s-" }
+        ]
+      },
+      {
+        nombre: "KANYANA PET NUTRITION SAS BIC",
+        sector: "Alimentos para Animales (1090)",
+        direccion: "Calle 64 A #2 - 56",
+        telefono: "316 325 2860",
+        links: [
+          { name: "Sitio Web", url: "https://kanyanapetnutrition.com" },
+          { name: "Facebook", url: "https://facebook.com/kanyanaPetNutrition" },
+          { name: "Instagram", url: "https://instagram.com/kanyanapetnutrition" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/kanyana-pet-nutrition" }
+        ]
+      },
+      {
+        nombre: "KAAND ARTE Y CIENCIA SAS",
+        sector: "Editorial y Estudio Gráfico",
+        direccion: "Calle 2 Sur # 2-100 Cajicá, Cundinamarca",
+        telefono: "314 817 9673",
+        links: [
+          { name: "Sitio Web", url: "https://kaandarteyciencia.com.co" },
+          { name: "Facebook", url: "https://facebook.com/people/Karen-Alonso" },
+          { name: "Instagram", url: "https://instagram.com/kaandarteyciencia" },
+          { name: "YouTube", url: "https://youtube.com/@KaandArteCiencia" }
+        ]
+      },
+      {
+        nombre: "RAMONAS BEER",
+        sector: "Alimentos y Bebidas",
+        direccion: "Calle 75 #22-20",
+        telefono: "317 698 0155",
+        links: [
+          { name: "Instagram", url: "https://instagram.com/ramonasbeer" }
+        ]
+      },
+      {
+        nombre: "GST GESTIÓN ESTRATÉGICA SAS",
+        sector: "Consultoría de Gestión",
+        direccion: "Calle 45 57A 64",
+        telefono: "318 434 0024",
+        links: [
+          { name: "Sitio Web", url: "https://gstestrategica.com" },
+          { name: "Instagram", url: "https://instagram.com/gst.estrategica" },
+          { name: "LinkedIn", url: "https://linkedin.com/in/gst-gestión-208824349" }
+        ]
+      },
+      {
+        nombre: "WAY2DISCOVER",
+        sector: "Educación",
+        direccion: "3 RUE de la Libération 35770 Vern-sur-Seiche",
+        telefono: "+33 6 21 37 53 42",
+        links: [
+          { name: "Sitio Web", url: "https://way2discover.com" },
+          { name: "Facebook", url: "https://facebook.com/way2discover" },
+          { name: "Instagram", url: "https://instagram.com/way2discover" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/way2discover" }
+        ]
+      },
+      {
+        nombre: "GESTION, DESARROLLO Y SOCIEDAD SAS",
+        sector: "Asesoría, Consultoría y Capacitación",
+        direccion: "Tv 87 83 A 44",
+        telefono: "312 513 0754 / 601 520 6572",
+        links: [
+          { name: "Sitio Web", url: "https://www.gedes.org" },
+          { name: "Facebook", url: "https://facebook.com/people/GEDES-SAS" },
+          { name: "X (Twitter)", url: "https://x.com/GedesSAS" },
+          { name: "Instagram", url: "https://instagram.com/gedes.sas" },
+          { name: "LinkedIn", url: "https://linkedin.com/in/gedes-sas" }
+        ]
+      },
+      {
+        nombre: "CONTAUDI ASESORES S.A.S - BIC",
+        sector: "Contable / Asesorías",
+        direccion: "Calle 53 B N° 27-24 Of 204",
+        telefono: "601 310 4113 / 300 611 4077",
+        links: [
+          { name: "Sitio Web", url: "https://contaudi.com" },
+          { name: "Facebook", url: "https://facebook.com/contaudi.asesores" },
+          { name: "LinkedIn", url: "https://linkedin.com/company/contaudi-asesores" }
+        ]
+      }
+    ];
+
     const state = {
       liveConvocatorias: [],
       isLoading: true,
       loadError: false,
       searchTerm: '',
       becasSearchTerm: '',
-      becasTypeFilter: 'ALL'
+      becasTypeFilter: 'ALL',
+      empresariosSearchTerm: '',
+      empresariosSectorFilter: 'ALL'
     };
 
     function parseCSV(text) {
@@ -656,24 +975,31 @@
           </div>
 
           <div class="card">
+            <span class="card-tag">Red Nacho</span>
+            <h3>Egresados Empresarios</h3>
+            <p>Directorio institucional con 25 empresas y emprendimientos creados por graduados de la Universidad Nacional de Colombia.</p>
+            <a href="#/egresadosempresarios" class="btn">Ver Egresados Empresarios (${egresadosEmpresariosData.length})</a>
+          </div>
+
+          <div class="card">
             <span class="card-tag">Red Estratégica</span>
             <h3>Radar de Aliados</h3>
             <p>Catálogo de organizaciones y empresas con convenios directos y preferencia por egresados UniVector.</p>
-            <a href="#/radaraliados" class="btn">Ver Aliados</a>
+            <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Formación Práctica</span>
             <h3>Laboratorio de Experiencias</h3>
             <p>Talleres de formulación de logros (Método STAR), simulación de selección y gestión vocacional.</p>
-            <a href="#/laboratorio" class="btn btn-fuchsia">Ver Talleres</a>
+            <a href="#/laboratorio" class="btn">Ver Talleres</a>
           </div>
 
           <div class="card">
             <span class="card-tag">Software y Apps</span>
             <h3>Caja de Herramientas</h3>
             <p>Aplicaciones interactivas creadas para dinamizar la autogestión de carrera y resolución de crisis.</p>
-            <a href="#/herramientas" class="btn">Abrir Apps</a>
+            <a href="#/herramientas" class="btn btn-fuchsia">Abrir Apps</a>
           </div>
         </div>
       `,
@@ -810,6 +1136,73 @@
                 `).join('')}
               </tbody>
             </table>
+          </div>
+        `;
+      },
+
+      '/egresadosempresarios': () => {
+        const filtered = egresadosEmpresariosData.filter(e => {
+          const q = state.empresariosSearchTerm.toLowerCase();
+          const matchesSearch = (
+            e.nombre.toLowerCase().includes(q) ||
+            e.sector.toLowerCase().includes(q) ||
+            e.direccion.toLowerCase().includes(q) ||
+            e.telefono.toLowerCase().includes(q)
+          );
+          const matchesSector = state.empresariosSectorFilter === 'ALL' || e.sector.toLowerCase().includes(state.empresariosSectorFilter.toLowerCase());
+          return matchesSearch && matchesSector;
+        });
+
+        return `
+          <div class="section-header fade-in">
+            <h1>Egresados Empresarios (Red UNAL)</h1>
+            <p>Directorio de empresas y organizaciones fundadas por egresados de la Universidad Nacional de Colombia.</p>
+          </div>
+
+          <div class="controls-bar fade-in">
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Buscar por empresa, sector, dirección o teléfono..."
+              value="${state.empresariosSearchTerm}"
+              oninput="state.empresariosSearchTerm = this.value; router();"
+            />
+            <select class="select-input" onchange="state.empresariosSectorFilter = this.value; router();">
+              <option value="ALL" ${state.empresariosSectorFilter === 'ALL' ? 'selected' : ''}>Todos los sectores</option>
+              <option value="Servicios" ${state.empresariosSectorFilter === 'Servicios' ? 'selected' : ''}>Servicios</option>
+              <option value="Tecnología" ${state.empresariosSectorFilter === 'Tecnología' ? 'selected' : ''}>Tecnología e IA</option>
+              <option value="Alimentos" ${state.empresariosSectorFilter === 'Alimentos' ? 'selected' : ''}>Alimentos y Agro</option>
+              <option value="Consultoría" ${state.empresariosSectorFilter === 'Consultoría' ? 'selected' : ''}>Consultoría</option>
+              <option value="Audiovisual" ${state.empresariosSectorFilter === 'Audiovisual' ? 'selected' : ''}>Audiovisual / Educación</option>
+            </select>
+          </div>
+
+          <div class="grid fade-in">
+            ${filtered.length === 0 ? '<p style="color:var(--text-muted);">No se encontraron empresas de egresados que coincidan con la búsqueda.</p>' : ''}
+            
+            ${filtered.map(e => `
+              <div class="card">
+                <div>
+                  <span class="card-tag">Egresado UNAL</span>
+                  <h3>${e.nombre}</h3>
+                  <div class="card-entity">${e.sector}</div>
+                </div>
+                
+                <div>
+                  <div class="meta-box">
+                    <div><strong>Dirección:</strong> ${e.direccion}</div>
+                    <div><strong>Teléfono:</strong> ${e.telefono}</div>
+                  </div>
+
+                  <div style="margin-top:0.5rem;">
+                    <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--cyan-neon); display:block; margin-bottom:0.3rem;">Enlaces y Redes:</span>
+                    <div class="links-grid">
+                      ${e.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-badge">${l.name} ↗</a>`).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
           </div>
         `;
       },
