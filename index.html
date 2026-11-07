@@ -284,7 +284,7 @@
       color: #cbd5e1;
     }
 
-    .meta-box div { margin-bottom: 0.3rem; }
+    .meta-box div { margin-bottom: 0.35rem; }
     .meta-box strong { color: var(--cyan-neon); }
 
     .links-grid {
@@ -855,6 +855,171 @@
       }
     ];
 
+    const radarAliadosData = [
+      {
+        empresa: "Quala",
+        perfiles: "Ingeniería Industrial, Administración, Economía, Ingeniería de Sistemas",
+        tecnicas: "Logística, inventarios, gestión de operaciones, mejora continua, indicadores de productividad",
+        herramientas: "Excel avanzado, Power BI, ERP",
+        blandas: "Liderazgo, toma de decisiones, orientación a resultados, adaptación al cambio",
+        enlace: "Ver vacantes y postularse",
+        canal: "Portal de empleo"
+      },
+      {
+        empresa: "Cusezar",
+        perfiles: "Ingeniería Civil, Ingeniería Industrial, Arquitectura, Administración, Contaduría",
+        tecnicas: "Presupuestos, costos, programación de proyectos, cronogramas, seguimiento de obras",
+        herramientas: "Excel avanzado, MS Project, AutoCAD",
+        blandas: "Organización, atención al detalle, comunicación, pensamiento analítico",
+        enlace: "Ver vacantes",
+        canal: "Portal de empleo"
+      },
+      {
+        empresa: "Cafam",
+        perfiles: "Administración, Ingeniería Industrial, Economía, Contaduría, Psicología",
+        tecnicas: "Gestión administrativa, presupuestos, indicadores, servicio al cliente, mejoramiento de procesos",
+        herramientas: "Excel, Power BI, herramientas ofimáticas, ERP",
+        blandas: "Empatía, orientación al servicio, comunicación, trabajo en equipo",
+        enlace: "Registrar hoja de vida",
+        canal: "Registro de HV"
+      },
+      {
+        empresa: "Fundación del Alto Magdalena",
+        perfiles: "Administración, Economía, Ingeniería Industrial, Ingeniería Civil, Ingeniería Ambiental",
+        tecnicas: "Formulación y evaluación de proyectos, presupuestos, indicadores, seguimiento y elaboración de informes",
+        herramientas: "Excel, Power BI, PowerPoint",
+        blandas: "Trabajo interdisciplinario, iniciativa, adaptabilidad, comunicación con comunidades",
+        enlace: "Trabaja con nosotros",
+        canal: "Vacantes y postulación"
+      },
+      {
+        empresa: "C230 Consulting Group",
+        perfiles: "Economía, Administración, Ingeniería Industrial, Ciencia Política, Estadística",
+        tecnicas: "Análisis económico, investigación, políticas públicas, evaluación de proyectos, construcción de indicadores",
+        herramientas: "Excel avanzado, Power BI, R, Python, Stata",
+        blandas: "Pensamiento crítico, redacción, autonomía, capacidad de síntesis",
+        enlace: "Consultar vacantes",
+        canal: "Vacantes"
+      },
+      {
+        empresa: "Brandstrat",
+        perfiles: "Administración, Economía, Ingeniería Industrial, Estadística, Mercadeo",
+        tecnicas: "Investigación de mercados, análisis de consumidores, estadística, análisis cuantitativo y cualitativo",
+        herramientas: "Excel, Power BI, SPSS, R, Python, herramientas de encuestas",
+        blandas: "Creatividad, pensamiento estratégico, comunicación, orientación al cliente",
+        enlace: "Postularse al equipo",
+        canal: "Formulario de postulación"
+      },
+      {
+        empresa: "Negawatt",
+        perfiles: "Ingeniería Eléctrica, Electrónica, Mecánica, Industrial",
+        tecnicas: "Eficiencia energética, sistemas eléctricos, mediciones, calidad de energía, análisis de consumos",
+        herramientas: "Excel, AutoCAD, MATLAB, software de análisis eléctrico",
+        blandas: "Rigurosidad técnica, pensamiento analítico, comunicación de resultados, trabajo de campo",
+        enlace: "Contactar por LinkedIn",
+        canal: "Contacto empresarial"
+      },
+      {
+        empresa: "Vinco Soluciones",
+        perfiles: "Economía, Finanzas, Ingeniería Industrial, Estadística, Matemáticas",
+        tecnicas: "Matemáticas financieras, valoración de activos, riesgos financieros, derivados y modelación",
+        herramientas: "Excel avanzado, Python, R, Power BI",
+        blandas: "Pensamiento crítico, precisión, confidencialidad, capacidad analítica",
+        enlace: "Formulario de contacto",
+        canal: "Contacto empresarial"
+      },
+      {
+        empresa: "GERS",
+        perfiles: "Ingeniería Eléctrica, Electrónica, Ingeniería de Sistemas",
+        tecnicas: "Sistemas de potencia, cortocircuito, flujo de carga, protecciones, puesta a tierra y subestaciones",
+        herramientas: "ETAP, DIgSILENT, ATP/ATPDraw, AutoCAD, Excel",
+        blandas: "Rigurosidad, pensamiento lógico, documentación técnica, trabajo en equipo",
+        enlace: "Trabaje con nosotros",
+        canal: "Recepción de HV"
+      },
+      {
+        empresa: "Voltae Engineering",
+        perfiles: "Ingeniería Eléctrica, Electrónica, Electromecánica",
+        tecnicas: "Alta tensión, subestaciones, líneas de transmisión, protecciones, energía fotovoltaica y diseño eléctrico",
+        herramientas: "AutoCAD, Excel, ETAP, herramientas de diseño eléctrico",
+        blandas: "Atención al detalle, adaptabilidad, responsabilidad, comunicación técnica",
+        enlace: "Consultar vacantes y candidatura espontánea",
+        canal: "Portal de empleo"
+      },
+      {
+        empresa: "Agrilab Laboratorios",
+        perfiles: "Ingeniería Agronómica, Industrial, Administración, Química, Biología",
+        tecnicas: "Control de calidad, análisis de resultados, gestión de procesos, indicadores y fundamentos de laboratorio",
+        herramientas: "Excel, Power BI, herramientas de análisis de datos",
+        blandas: "Rigurosidad, organización, orientación al cliente, trabajo interdisciplinario",
+        enlace: "Enviar hoja de vida",
+        canal: "Correo de selección"
+      },
+      {
+        empresa: "AGV Salud Animal / Agroinsuvet",
+        perfiles: "Ingeniería Industrial, Administración, Medicina Veterinaria, Zootecnia",
+        tecnicas: "Inventarios, almacenamiento, distribución, cadena de suministro y procesos comerciales",
+        herramientas: "Excel, ERP, Power BI, sistemas de inventarios",
+        blandas: "Negociación, orientación al servicio, comunicación, resolución de problemas",
+        enlace: "Enviar hoja de vida",
+        canal: "Contacto por correo"
+      },
+      {
+        empresa: "Altea Farmacéutica",
+        perfiles: "Ingeniería Industrial, Química, Mecánica, Administración, Contaduría",
+        tecnicas: "Producción, mantenimiento, calidad, mejora continua, buenas prácticas de manufactura",
+        herramientas: "Excel, Power BI, ERP, software de mantenimiento",
+        blandas: "Disciplina, atención al detalle, responsabilidad, trabajo en equipo",
+        enlace: "Trabaja con nosotros",
+        canal: "Programa y postulación"
+      },
+      {
+        empresa: "Sunshine Bouquet",
+        perfiles: "Ingeniería Industrial, Administración, Ingeniería Agronómica, Negocios Internacionales",
+        tecnicas: "Producción, logística, inventarios, calidad, comercio exterior y productividad",
+        herramientas: "Excel, Power BI, ERP",
+        blandas: "Liderazgo, adaptabilidad, coordinación, trabajo bajo presión",
+        enlace: "Careers",
+        canal: "Página de empleo"
+      },
+      {
+        empresa: "Closter Pharma",
+        perfiles: "Administración, Ingeniería Industrial, Mercadeo, Economía",
+        tecnicas: "Productividad, indicadores, investigación de mercados, análisis comercial y gestión de procesos",
+        herramientas: "Excel avanzado, Power BI, herramientas de análisis de datos",
+        blandas: "Comunicación, orientación a resultados, organización, pensamiento analítico",
+        enlace: "Sitio web · LinkedIn",
+        canal: "Contacto empresarial"
+      },
+      {
+        empresa: "La Santé / Pharmetique Labs",
+        perfiles: "Ingeniería Industrial, Química, Mecánica, Eléctrica, Administración",
+        tecnicas: "Manufactura, calidad, automatización, mantenimiento, innovación y mejora continua",
+        herramientas: "Excel, Power BI, PLC, SCADA, herramientas de gestión de calidad",
+        blandas: "Rigurosidad, trabajo interdisciplinario, aprendizaje continuo, orientación a la calidad",
+        enlace: "Consultar vacantes",
+        canal: "Portal de empleo"
+      },
+      {
+        empresa: "NielsenIQ (NIQ)",
+        perfiles: "Economía, Estadística, Ingeniería Industrial, Administración, Matemáticas, Ciencia de Datos",
+        tecnicas: "Estadística, investigación de mercados, análisis de tendencias, indicadores comerciales y análisis financiero",
+        herramientas: "Excel avanzado, Power BI, SQL, Python, R",
+        blandas: "Pensamiento crítico, curiosidad, comunicación de resultados, orientación al cliente",
+        enlace: "Careers",
+        canal: "Portal de empleo"
+      },
+      {
+        empresa: "Minerales Exclusivos",
+        perfiles: "Ingeniería Agronómica, Química, Industrial, Administración, Economía",
+        tecnicas: "Procesos productivos, logística, inventarios, costos y gestión de operaciones",
+        herramientas: "Excel, Power BI, ERP",
+        blandas: "Negociación, comunicación, organización, adaptabilidad",
+        enlace: "Formulario de contacto",
+        canal: "Contacto empresarial"
+      }
+    ];
+
     const state = {
       liveConvocatorias: [],
       isLoading: true,
@@ -863,7 +1028,8 @@
       becasSearchTerm: '',
       becasTypeFilter: 'ALL',
       empresariosSearchTerm: '',
-      empresariosSectorFilter: 'ALL'
+      empresariosSectorFilter: 'ALL',
+      radarSearchTerm: ''
     };
 
     function parseCSV(text) {
@@ -982,10 +1148,10 @@
           </div>
 
           <div class="card">
-            <span class="card-tag">Red Estratégica</span>
-            <h3>Radar de Aliados</h3>
-            <p>Catálogo de organizaciones y empresas con convenios directos y preferencia por egresados UniVector.</p>
-            <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados</a>
+            <span class="card-tag">Aliados Estratégicos</span>
+            <h3>Radar de Aliados (Talento UNAL)</h3>
+            <p>Empresas con alta inclinación por contratar egresados UNAL, detallando perfiles, habilidades clave y enlaces de postulación.</p>
+            <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados UNAL (${radarAliadosData.length})</a>
           </div>
 
           <div class="card">
@@ -1207,35 +1373,62 @@
         `;
       },
 
-      '/radaraliados': () => `
-        <div class="section-header fade-in">
-          <h1>Radar de Aliados (Empresas Preferenciales)</h1>
-          <p>Organizaciones vinculadas al programa de captación de talento UniVector PRO.</p>
-        </div>
-        <div class="grid fade-in">
-          <div class="card">
-            <span class="card-tag">Tecnología e IA</span>
-            <h3>GemaTech Solutions</h3>
-            <div class="card-entity">Sector: Desarrollo y Analítica</div>
-            <p>Empresa líder en soluciones algorítmicas de alto impacto. Busca activamente perfiles de analítica de datos e ingeniería.</p>
-            <a href="mailto:talento@gematech.vector" class="btn">Contactar Reclutador</a>
+      '/radaraliados': () => {
+        const filtered = radarAliadosData.filter(r => {
+          const q = state.radarSearchTerm.toLowerCase();
+          return (
+            r.empresa.toLowerCase().includes(q) ||
+            r.perfiles.toLowerCase().includes(q) ||
+            r.tecnicas.toLowerCase().includes(q) ||
+            r.herramientas.toLowerCase().includes(q) ||
+            r.blandas.toLowerCase().includes(q) ||
+            r.canal.toLowerCase().includes(q)
+          );
+        });
+
+        return `
+          <div class="section-header fade-in">
+            <h1>Radar de Aliados (Preferencia por Talento UNAL)</h1>
+            <p>Empresas aliadas con vacantes y requerimientos clave para graduados y estudiantes de la Universidad Nacional.</p>
           </div>
-          <div class="card">
-            <span class="card-tag">Finanzas y Bolsa</span>
-            <h3>Zafranal Capital Group</h3>
-            <div class="card-entity">Sector: Banca de Inversión</div>
-            <p>Firma orientada a mercados emergentes y análisis financiero con enfoque de inversión sostenible (ESG).</p>
-            <a href="mailto:carreras@zafranal.vector" class="btn btn-fuchsia">Contactar Reclutador</a>
+
+          <div class="controls-bar fade-in">
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Buscar por empresa, carrera, habilidad técnica, herramienta o tipo de canal..."
+              value="${state.radarSearchTerm}"
+              oninput="state.radarSearchTerm = this.value; router();"
+            />
           </div>
-          <div class="card">
-            <span class="card-tag">Consultoría Ambiental</span>
-            <h3>Ancla Sostenible S.A.</h3>
-            <div class="card-entity">Sector: Impacto Territorial</div>
-            <p>Proyectos de intervención socio-ambiental, mitigación de riesgo y sostenibilidad corporativa.</p>
-            <a href="mailto:impacto@anclasostenible.org" class="btn">Contactar Reclutador</a>
+
+          <div class="grid fade-in">
+            ${filtered.length === 0 ? '<p style="color:var(--text-muted);">No se encontraron aliados que coincidan con el criterio de búsqueda.</p>' : ''}
+            
+            ${filtered.map(r => `
+              <div class="card">
+                <div>
+                  <span class="card-tag">${r.canal}</span>
+                  <h3>${r.empresa}</h3>
+                  <div class="card-entity">Perfiles: ${r.perfiles}</div>
+                </div>
+                
+                <div>
+                  <div class="meta-box">
+                    <div><strong>Habilidades Técnicas:</strong> ${r.tecnicas}</div>
+                    <div><strong>Herramientas / Software:</strong> ${r.herramientas}</div>
+                    <div><strong>Habilidades Blandas:</strong> ${r.blandas}</div>
+                  </div>
+
+                  <a href="#/rutaoportunidades" class="btn btn-fuchsia">
+                    ${r.enlace} ↗
+                  </a>
+                </div>
+              </div>
+            `).join('')}
           </div>
-        </div>
-      `,
+        `;
+      },
 
       '/laboratorio': () => `
         <div class="section-header fade-in">
