@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMULADOR DE CRISIS — VECTOR</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (Estructura y layout) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: { bg: '#0a0f1a', panel: 'rgba(15,23,42,0.85)', cyan: '#00f3ff', magenta: '#d946ef', red: '#ef4444' }
+                    },
+                    fontFamily: {
+                        mono: ['"Fira Code"', 'monospace'],
+                        sans: ['"Inter"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos Personalizados (Cyberpunk / Terminal) -->
+    <style>
+        body {
+            background-color: #0a0f1a;
+            color: #e2e8f0;
+            /* Grid digital */
+            background-image: 
+                linear-gradient(rgba(0,243,255,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,243,255,0.06) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+
+        /* Utilidades de Neón */
+        .neon-text-cyan {
+            color: #00f3ff;
+            text-shadow: 0 0 5px rgba(0,243,255,0.5);
+        }
+        .neon-text-magenta {
+            color: #d946ef;
+            text-shadow: 0 0 5px rgba(217,70,239,0.5);
+        }
+        .neon-text-red {
+            color: #ef4444;
+            text-shadow: 0 0 8px rgba(239,68,68,0.8);
+        }
+        
+        .neon-border-cyan {
+            border: 1px solid #00f3ff;
+            box-shadow: 0 0 10px rgba(0,243,255,0.2), inset 0 0 10px rgba(0,243,255,0.1);
+        }
+        .neon-border-magenta {
+            border: 1px solid #d946ef;
+            box-shadow: 0 0 10px rgba(217,70,239,0.2), inset 0 0 10px rgba(217,70,239,0.1);
+        }
+        .neon-border-red {
+            border: 1px solid #ef4444;
+            box-shadow: 0 0 15px rgba(239,68,68,0.4), inset 0 0 15px rgba(239,68,68,0.2);
+        }
+
+        /* Paneles */
+        .cyber-panel {
+            background: rgba(15,23,42,0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 6px;
+        }
+
+        /* Botones Interactivos */
+        .cyber-btn {
+            background: transparent;
+            color: #00f3ff;
+            border: 1px solid #00f3ff;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-family: "Fira Code", monospace;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,243,255,0.2);
+        }
+        .cyber-btn:hover {
+            background: #00f3ff;
+            color: #0a0f1a;
+            box-shadow: 0 0 15px rgba(0,243,255,0.6);
+        }
+        .cyber-btn.magenta {
+            color: #d946ef; border-color: #d946ef; box-shadow: 0 0 5px rgba(217,70,239,0.2);
+        }
+        .cyber-btn.magenta:hover {
+            background: #d946ef; color: #0a0f1a; box-shadow: 0 0 15px rgba(217,70,239,0.6);
+        }
+        .cyber-btn.red {
+            color: #ef4444; border-color: #ef4444; box-shadow: 0 0 5px rgba(239,68,68,0.2);
+        }
+        .cyber-btn.red:hover {
+            background: #ef4444; color: #0a0f1a; box-shadow: 0 0 15px rgba(239,68,68,0.6);
+        }
+        .cyber-btn.active-selector {
+            background: #00f3ff; color: #0a0f1a; box-shadow: 0 0 12px rgba(0,243,255,0.5);
+        }
+
+        /* Inputs y Selects */
+        .cyber-input {
+            background: #000;
+            color: #00f3ff;
+            border: 1px solid #00f3ff;
+            border-radius: 4px;
+            font-family: "Fira Code", monospace;
+            outline: none;
+        }
+        .cyber-input:focus {
+            box-shadow: 0 0 10px rgba(0,243,255,0.4);
+        }
+
+        /* Efecto Cursor / Barrido */
+        .cursor-blink::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+            margin-left: 5px;
+            color: #00f3ff;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .sweep-reveal {
+            animation: sweep 0.5s ease-out forwards;
+            clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+        }
+        @keyframes sweep {
+            to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        }
+
+        /* Timers */
+        .timer-display {
+            font-size: 5rem;
+            line-height: 1;
+            font-family: "Fira Code", monospace;
+        }
+        @media (max-width: 640px) { .timer-display { font-size: 3.5rem; } }
+        
+        .timer-danger {
+            color: #ef4444;
+            text-shadow: 0 0 15px rgba(239,68,68,0.8);
+            animation: pulse-danger 1s infinite;
+        }
+        @keyframes pulse-danger {
+            0% { transform: scale(1); text-shadow: 0 0 15px rgba(239,68,68,0.8); }
+            50% { transform: scale(1.02); text-shadow: 0 0 25px rgba(239,68,68,1); }
+            100% { transform: scale(1); text-shadow: 0 0 15px rgba(239,68,68,0.8); }
+        }
+
+        /* Pestañas */
+        .cyber-tab {
+            border-bottom: 2px solid transparent;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .cyber-tab.active {
+            border-bottom-color: #00f3ff;
+            color: #00f3ff;
+            text-shadow: 0 0 5px rgba(0,243,255,0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0f1a; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,243,255,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,243,255,0.6); }
+
+        .hidden-screen { display: none !important; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans p-4 md:p-8">
+
+    <!-- Header System -->
+    <header class="flex justify-between items-center mb-6">
+        <div class="font-mono text-xs md:text-sm text-cyber-cyan opacity-80 uppercase">
+            <span id="sys-status">SYS.STATE: STANDBY</span> | <span id="sys-time">00:00:00</span>
+        </div>
+        <button id="btn-fullscreen" class="cyber-btn px-3 py-1 text-xs" aria-label="Pantalla completa">[ ] KIOSCO</button>
+    </header>
+
+    <!-- Contenedor Principal de Pantallas -->
+    <main class="flex-grow flex flex-col relative max-w-7xl mx-auto w-full">
+
+        <!-- ================= PANTALLA 0: CONFIGURACIÓN ================= -->
+        <section id="screen-0" class="flex flex-col items-center justify-center flex-grow space-y-8 sweep-reveal">
+            <div class="text-center space-y-2">
+                <h1 class="text-4xl md:text-6xl font-mono font-bold neon-text-cyan cursor-blink uppercase">Simulador de Crisis</h1>
+                <h2 class="text-xl md:text-2xl font-mono text-cyber-magenta uppercase tracking-widest">Vector: Código de Impacto</h2>
+            </div>
+
+            <div class="cyber-panel neon-border-cyan p-6 md:p-8 w-full max-w-2xl space-y-6">
+                <div class="space-y-3">
+                    <label class="font-mono text-cyber-cyan text-sm uppercase">NÚMERO DE EQUIPOS</label>
+                    <div class="grid grid-cols-3 gap-4" id="config-teams">
+                        <button class="cyber-btn py-3 text-lg" data-val="1">1 EQUIPO</button>
+                        <button class="cyber-btn py-3 text-lg" data-val="2">2 EQUIPOS</button>
+                        <button class="cyber-btn py-3 text-lg active-selector" data-val="3">3 EQUIPOS</button>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="font-mono text-cyber-cyan text-sm uppercase">TIEMPO TRABAJO BASE (ANTES DEL GIRO)</label>
+                    <div class="grid grid-cols-3 gap-4" id="config-time">
+                        <button class="cyber-btn py-3 text-lg" data-val="3">3 MIN</button>
+                        <button class="cyber-btn py-3 text-lg active-selector" data-val="5">5 MIN</button>
+                        <button class="cyber-btn py-3 text-lg" data-val="7">7 MIN</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center bg-black/50 p-4 rounded border border-gray-800 text-center">
+                    <span class="font-mono text-gray-400 text-sm w-full">PITCH FINAL: 1.5 MIN (FIJO)</span>
+                </div>
+
+                <button id="btn-start-sim" class="cyber-btn w-full py-4 text-xl font-bold mt-4 shadow-lg shadow-cyan-500/20">INICIAR SIMULACIÓN</button>
+            </div>
+        </section>
+
+        <!-- ================= PANTALLA 1: CASOS BASE ================= -->
+        <section id="screen-1" class="hidden-screen flex-col flex-grow w-full space-y-6 sweep-reveal">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 class="text-2xl font-mono text-cyber-cyan uppercase">Fase 1: Trabajo Base</h2>
+                
+                <!-- Global Timer Display -->
+                <div class="cyber-panel neon-border-cyan px-6 py-2 flex items-center gap-6">
+                    <div id="s1-timer-display" class="timer-display neon-text-cyan">05:00</div>
+                    <div class="flex flex-col gap-2">
+                        <button id="btn-s1-playpause" class="cyber-btn px-4 py-2">INICIAR</button>
+                        <button id="btn-s1-skip" class="cyber-btn magenta px-4 py-2 text-xs">SALTAR</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor de Casos en Grid -->
+            <div id="s1-cases-container" class="w-full flex-grow relative overflow-y-auto pb-4"></div>
+        </section>
+
+        <!-- ================= PANTALLA 2: GIRO INESPERADO ================= -->
+        <section id="screen-2" class="hidden-screen flex-col flex-grow w-full justify-center items-center space-y-6">
+            <div class="absolute inset-0 bg-red-900/20 animate-pulse pointer-events-none"></div>
+            
+            <div class="text-center space-y-4 sweep-reveal z-10 w-full max-w-5xl">
+                <h1 class="text-5xl md:text-7xl font-mono font-bold neon-text-red blink-fast uppercase">¡ALERTA DE GIRO!</h1>
+                <p class="font-mono text-xl md:text-2xl text-white font-bold bg-red-600 inline-block px-4 py-2 rounded">PROHIBIDO EMPEZAR DE CERO. ADAPTEN LO QUE YA TIENEN.</p>
+            </div>
+
+            <div id="s2-twists-container" class="w-full max-w-6xl z-10"></div>
+
+            <div class="mt-8 z-10 text-center sweep-reveal" style="animation-delay: 1s;">
+                <p class="text-cyber-red font-mono text-lg mb-2">SISTEMA BLOQUEADO. FORZANDO ADAPTACIÓN EN:</p>
+                <div id="s2-countdown" class="text-6xl font-mono font-bold text-white">10</div>
+            </div>
+        </section>
+
+        <!-- ================= PANTALLA 3: ADAPTACIÓN ================= -->
+        <section id="screen-3" class="hidden-screen flex-col flex-grow w-full space-y-6 sweep-reveal">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 class="text-2xl font-mono text-cyber-magenta uppercase cursor-blink">Fase 2: Adaptación al Giro</h2>
+                
+                <div class="cyber-panel neon-border-magenta px-6 py-2 flex items-center gap-6">
+                    <div id="s3-timer-display" class="timer-display neon-text-magenta">00:00</div>
+                    <div class="flex flex-col gap-2">
+                        <button id="btn-s3-playpause" class="cyber-btn magenta px-4 py-2">PAUSAR</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="s3-content-container" class="w-full flex-grow overflow-y-auto pb-4"></div>
+            
+            <div class="flex justify-end mt-4">
+                <button id="btn-s3-next" class="cyber-btn py-3 px-8 text-lg">IR A PITCH RELÁMPAGO ➔</button>
+            </div>
+        </section>
+
+        <!-- ================= PANTALLA 4: PITCH RELÁMPAGO ================= -->
+        <section id="screen-4" class="hidden-screen flex-col flex-grow w-full space-y-6 sweep-reveal items-center justify-center relative">
+            <h2 id="s4-team-title" class="text-3xl font-mono text-cyber-cyan uppercase mb-4">PITCH: EQUIPO 1</h2>
+            
+            <div class="cyber-panel neon-border-cyan p-12 flex flex-col items-center justify-center rounded-full w-64 h-64 md:w-96 md:h-96 shadow-2xl transition-all duration-500" id="s4-timer-circle">
+                <div id="s4-timer-display" class="timer-display neon-text-cyan text-center" style="font-size: 6rem;">01:30</div>
+            </div>
+
+            <div class="flex gap-4 mt-8">
+                <button id="btn-s4-playpause" class="cyber-btn px-8 py-3 text-xl">INICIAR PITCH</button>
+                <button id="btn-s4-reset" class="cyber-btn magenta px-6 py-3 text-xl">RESETEAR</button>
+            </div>
+
+            <div class="mt-8 flex gap-4 w-full justify-between items-center px-4 max-w-4xl">
+                <div class="font-mono text-sm text-gray-500 uppercase">Equipos restantes: <span id="s4-teams-left">2</span></div>
+                <button id="btn-s4-next" class="cyber-btn py-3 px-8 text-lg hidden">SIGUIENTE EQUIPO</button>
+                <button id="btn-s4-finish" class="cyber-btn magenta py-3 px-8 text-lg hidden">REGISTRAR FEEDBACK</button>
+            </div>
+        </section>
+
+        <!-- ================= PANTALLA 5: FEEDBACK ================= -->
+        <section id="screen-5" class="hidden-screen flex-col flex-grow w-full space-y-6 sweep-reveal">
+            <h2 class="text-3xl font-mono text-cyber-magenta uppercase cursor-blink">Registro de Feedback</h2>
+            
+            <div id="s5-tabs" class="flex border-b border-gray-800 font-mono overflow-x-auto"></div>
+            
+            <div id="s5-forms-container" class="cyber-panel neon-border-magenta p-6 flex-grow overflow-y-auto"></div>
+
+            <div class="flex justify-end mt-4">
+                <button id="btn-s5-finish" class="cyber-btn py-3 px-8 text-xl font-bold">FINALIZAR SESIÓN</button>
+            </div>
+        </section>
+
+        <!-- ================= PANTALLA 6: CIERRE ================= -->
+        <section id="screen-6" class="hidden-screen flex-col flex-grow w-full items-center justify-center space-y-8 sweep-reveal text-center">
+            <h1 class="text-4xl md:text-5xl font-mono text-cyber-cyan uppercase cursor-blink">SESIÓN FINALIZADA</h1>
+            <p class="text-xl text-gray-300 max-w-2xl">Por favor, escaneen el QR de salida (proporcionado por el instructor) y registren su compromiso de la semana.</p>
+            
+            <div class="flex flex-col md:flex-row gap-6 mt-8">
+                <button id="btn-export-csv" class="cyber-btn py-4 px-8 text-lg flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    EXPORTAR REGISTRO (CSV)
+                </button>
+                <button id="btn-reset-app" class="cyber-btn red py-4 px-8 text-lg">REINICIAR SISTEMA</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal System Mensajes (Custom Alert) -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden-screen">
+        <div class="cyber-panel neon-border-cyan p-8 max-w-md w-full text-center space-y-6">
+            <h3 id="modal-title" class="text-2xl font-mono uppercase text-cyber-cyan">AVISO</h3>
+            <p id="modal-msg" class="text-gray-300 font-sans"></p>
+            <div class="flex justify-center gap-4 pt-4">
+                <button id="btn-modal-cancel" class="cyber-btn magenta px-6 py-2 hidden">CANCELAR</button>
+                <button id="btn-modal-ok" class="cyber-btn px-6 py-2">ACEPTAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts (Lógica de la App) -->
+    <script>
+        // --- CONSTANTES DE CONTENIDO ---
+        const CASOS_BASE = [
+            {
+                id: 1,
+                titulo: "CASO 1: CONEXIÓN CAMPESINA",
+                tags: "AGRO | LOGÍSTICA | FINANZAS",
+                reto: "Una startup de egresados busca conectar pequeños fruticultores de Cundinamarca directamente con restaurantes de Bogotá. Los campesinos están en zonas con pésima señal de internet y usan celulares de gama baja.",
+                mision: "Diseñar una estrategia de toma de pedidos y logística de recolección fluida sin depender de internet constante, asegurando un cobro justo para el campesino."
+            },
+            {
+                id: 2,
+                titulo: "CASO 2: ECO-EMPAQUES BIO-SOSTENIBLES",
+                tags: "INDUSTRIA | MERCADEO",
+                reto: "Una iniciativa busca reemplazar plásticos de un solo uso por empaques compostables de fibra vegetal para las cafeterías del campus. El costo de fabricación inicial es un 35% más alto que el plástico tradicional.",
+                mision: "Estructurar un modelo de escalamiento y cobro atractivo para los comerciantes sin que el costo se traslade al bolsillo del estudiante."
+            },
+            {
+                id: 3,
+                titulo: "CASO 3: RED DE MOVILIDAD SEGURA NOCTURNA",
+                tags: "TECNOLOGÍA | GESTIÓN",
+                reto: "Un proyecto busca garantizar la salida segura de estudiantes que terminan clases a las 10:00 p.m. hacia las estaciones de TransMilenio. No hay presupuesto para contratar seguridad privada adicional.",
+                mision: "Diseñar un sistema colaborativo de acompañamiento guiado apoyado en incentivos académicos o comunitarios sin generar costos operativos."
+            }
+        ];
+
+        const GIROS_INESPERADOS = [
+            {
+                id: "G1", titulo: "RECORTE PRESUPUESTAL DEL 60%",
+                crisis: "El inversionista principal recortó los fondos drásticamente. Deben ajustar su proyecto al Producto Mínimo Viable (PMV) sin cancelar la operación."
+            },
+            {
+                id: "G2", titulo: "APAGÓN TECNOLÓGICO TOTAL",
+                crisis: "Se cayó el servidor/red móvil en la zona. La solución propuesta ya no puede usar apps ni internet; debe pasar a un formato 100% análogo o telefónico."
+            },
+            {
+                id: "G3", titulo: "RETIRO DEL ALIADO CLAVE",
+                crisis: "El cliente o aliado principal rompió negociaciones de un momento a otro. Deben reorientar el producto hacia otro tipo de cliente en 3 minutos."
+            },
+            {
+                id: "G4", titulo: "REASIGNACIÓN DE VOCERÍA",
+                crisis: "El integrante que estaba designado para explicar la parte financiera/técnica no podrá hablar durante la socialización final. Otro integrante del equipo deberá asumir esa vocería en el pitch de 3 minutos, sin ensayo previo. El equipo debe reorganizarse ahora."
+            },
+            {
+                id: "G5", titulo: "CRISIS DE REPUTACIÓN EN REDES SOCIALES",
+                crisis: "Se viralizó una noticia falsa sobre la viabilidad del proyecto. Deben integrar en su pitch de 3 minutos una estrategia exprés de manejo de reputación sin aumentar el presupuesto."
+            }
+        ];
+
+        // --- ESTADO GLOBAL ---
+        let appState = {
+            screen: 0,
+            config: { numTeams: 3, baseTimeMin: 5, twistTriggerTimeMs: 120000, pitchTimeMin: 1.5 },
+            teamsData: [], // { id, case: {}, twist: {}, feedback: {} }
+            currentPitchTeamIdx: 0,
+            feedbackData: [],
+            twistRevealed: false
+        };
+
+        let timerObj = {
+            interval: null, remainingMs: 0, endTimestamp: 0, isPaused: false, totalDurationMs: 0, onTick: null, onEnd: null, elDisplay: null
+        };
+
+        // --- AUDIO SYSTEM (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+            
+            if (type === 'tick') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'alert') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, now);
+                osc.frequency.linearRampToValueAtTime(300, now + 0.5);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.8);
+                osc.start(now); osc.stop(now + 0.8);
+            } else if (type === 'bell') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+                osc.start(now); osc.stop(now + 1.5);
+            } else if (type === 'warn') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            }
+        }
+
+        // --- UTILS ---
+        function formatTime(ms) {
+            if (ms < 0) ms = 0;
+            const totalSecs = Math.ceil(ms / 1000);
+            const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+            const s = (totalSecs % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function updateSysTime() {
+            const now = new Date();
+            document.getElementById('sys-time').textContent = now.toLocaleTimeString('es-ES', {hour12: false});
+        }
+        setInterval(updateSysTime, 1000);
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Custom Modal
+        let modalResolve = null;
+        function showModal(title, msg, showCancel = false) {
+            return new Promise((resolve) => {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-msg').textContent = msg;
+                const btnCancel = document.getElementById('btn-modal-cancel');
+                btnCancel.style.display = showCancel ? 'block' : 'none';
+                document.getElementById('modal-overlay').classList.remove('hidden-screen');
+                modalResolve = resolve;
+            });
+        }
+        document.getElementById('btn-modal-ok').addEventListener('click', () => {
+            document.getElementById('modal-overlay').classList.add('hidden-screen');
+            if (modalResolve) modalResolve(true);
+        });
+        document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+            document.getElementById('modal-overlay').classList.add('hidden-screen');
+            if (modalResolve) modalResolve(false);
+        });
+
+        // Pantalla completa
+        document.getElementById('btn-fullscreen').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // --- NAVEGACIÓN Y MAQUINA DE ESTADOS ---
+        function goToScreen(num) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden-screen'));
+            const target = document.getElementById(`screen-${num}`);
+            if(target) {
+                target.classList.remove('hidden-screen');
+                // Restart animation
+                target.style.animation = 'none';
+                target.offsetHeight; 
+                target.style.animation = null;
+            }
+            appState.screen = num;
+            
+            const sysStatus = document.getElementById('sys-status');
+            
+            switch(num) {
+                case 0: sysStatus.textContent = 'SYS.STATE: CONFIG'; break;
+                case 1: 
+                    sysStatus.textContent = 'SYS.STATE: FASE_1_BASE'; 
+                    initScreen1(); 
+                    break;
+                case 2: 
+                    sysStatus.textContent = 'SYS.STATE: GIRO_INESPERADO'; 
+                    playSound('alert');
+                    initScreen2(); 
+                    break;
+                case 3:
+                    sysStatus.textContent = 'SYS.STATE: FASE_2_ADAPT';
+                    initScreen3();
+                    break;
+                case 4:
+                    sysStatus.textContent = 'SYS.STATE: PITCH';
+                    appState.currentPitchTeamIdx = 0;
+                    initScreen4();
+                    break;
+                case 5:
+                    sysStatus.textContent = 'SYS.STATE: FEEDBACK';
+                    initScreen5();
+                    break;
+                case 6:
+                    sysStatus.textContent = 'SYS.STATE: DONE';
+                    break;
+            }
+        }
+
+        // --- SISTEMA DE CRONÓMETRO ---
+        function stopTimer() {
+            if(timerObj.interval) clearInterval(timerObj.interval);
+            timerObj.interval = null;
+        }
+
+        function startGlobalTimer(durationMin, displayElId, onEndCb, onTickCb = null) {
+            stopTimer();
+            timerObj.totalDurationMs = durationMin * 60 * 1000;
+            timerObj.remainingMs = timerObj.totalDurationMs;
+            timerObj.endTimestamp = Date.now() + timerObj.remainingMs;
+            timerObj.isPaused = true; // Starts paused
+            timerObj.elDisplay = document.getElementById(displayElId);
+            timerObj.elDisplay.textContent = formatTime(timerObj.remainingMs);
+            timerObj.elDisplay.classList.remove('timer-danger');
+            timerObj.onEnd = onEndCb;
+            timerObj.onTick = onTickCb;
+        }
+
+        function toggleTimer(btnEl) {
+            if (!timerObj.interval && !timerObj.isPaused && timerObj.remainingMs <= 0) return; // Finished
+
+            if (timerObj.isPaused) {
+                // Resume
+                timerObj.isPaused = false;
+                timerObj.endTimestamp = Date.now() + timerObj.remainingMs;
+                btnEl.textContent = 'PAUSAR';
+                btnEl.classList.add('magenta');
+                
+                timerObj.interval = setInterval(() => {
+                    timerObj.remainingMs = timerObj.endTimestamp - Date.now();
+                    
+                    if (timerObj.remainingMs <= 0) {
+                        timerObj.remainingMs = 0;
+                        stopTimer();
+                        timerObj.elDisplay.textContent = formatTime(0);
+                        btnEl.textContent = 'FINALIZADO';
+                        btnEl.disabled = true;
+                        if(timerObj.onEnd) timerObj.onEnd();
+                        return;
+                    }
+                    
+                    timerObj.elDisplay.textContent = formatTime(timerObj.remainingMs);
+                    
+                    // Efectos últimos 30 segundos
+                    if (timerObj.remainingMs <= 30000) {
+                        timerObj.elDisplay.classList.add('timer-danger');
+                        timerObj.elDisplay.classList.remove('neon-text-cyan', 'neon-text-magenta');
+                    }
+                    
+                    if(timerObj.onTick) timerObj.onTick(timerObj.remainingMs);
+
+                }, 100);
+            } else {
+                // Pause
+                timerObj.isPaused = true;
+                stopTimer();
+                btnEl.textContent = 'REANUDAR';
+                btnEl.classList.remove('magenta');
+            }
+        }
+
+
+        // --- LÓGICA DE PANTALLAS ---
+
+        // P0: Configuración
+        document.getElementById('config-teams').addEventListener('click', (e) => {
+            if(e.target.tagName === 'BUTTON') {
+                document.querySelectorAll('#config-teams button').forEach(b => b.classList.remove('active-selector'));
+                e.target.classList.add('active-selector');
+                appState.config.numTeams = parseInt(e.target.dataset.val);
+            }
+        });
+        document.getElementById('config-time').addEventListener('click', (e) => {
+            if(e.target.tagName === 'BUTTON') {
+                document.querySelectorAll('#config-time button').forEach(b => b.classList.remove('active-selector'));
+                e.target.classList.add('active-selector');
+                appState.config.baseTimeMin = parseInt(e.target.dataset.val);
+            }
+        });
+
+        document.getElementById('btn-start-sim').addEventListener('click', () => {
+            // Calcular tiempo en el que entra el giro sorpresivo
+            let triggerMs = 120000; // 2 min restantes por defecto (para opciones de 5 y 7 min)
+            if (appState.config.baseTimeMin === 3) triggerMs = 90000; // 1.5 min restantes (mitad) para opción de 3 min
+            appState.config.twistTriggerTimeMs = triggerMs;
+            appState.twistRevealed = false;
+
+            // Asignar casos y preparar datos de equipos
+            appState.teamsData = [];
+            for(let i=0; i<appState.config.numTeams; i++) {
+                appState.teamsData.push({
+                    id: i+1,
+                    name: `EQUIPO ${i+1}`,
+                    case: CASOS_BASE[i], // Asignación secuencial (Caso 1->Eq 1, etc)
+                    twist: null,
+                    feedback: {
+                        autorregulacion: '', adaptabilidad: '', comunicacion: '', obs: ''
+                    }
+                });
+            }
+            goToScreen(1);
+        });
+
+        // Construir UI de Tabs
+        function buildTabs(containerId, contentCb) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if(appState.teamsData.length === 1) {
+                container.style.display = 'none'; // Ocultar si es solo 1
+                contentCb(appState.teamsData[0]);
+                return;
+            }
+            
+            container.style.display = 'flex';
+            appState.teamsData.forEach((t, i) => {
+                const btn = document.createElement('button');
+                btn.className = `cyber-tab px-6 py-3 font-bold ${i===0 ? 'active' : ''}`;
+                btn.textContent = t.name;
+                btn.onclick = () => {
+                    container.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+                    btn.classList.add('active');
+                    contentCb(t);
+                };
+                container.appendChild(btn);
+            });
+            contentCb(appState.teamsData[0]);
+        }
+
+        // P1: Base
+        function initScreen1() {
+            const btnPlay = document.getElementById('btn-s1-playpause');
+            btnPlay.disabled = false;
+            btnPlay.textContent = 'INICIAR';
+            btnPlay.classList.remove('magenta');
+            
+            appState.twistRevealed = false;
+            
+            startGlobalTimer(appState.config.baseTimeMin, 's1-timer-display', () => {
+                if(!appState.twistRevealed) goToScreen(2);
+            }, (rem) => {
+                if (rem <= appState.config.twistTriggerTimeMs && !appState.twistRevealed && rem > 0) {
+                    appState.twistRevealed = true;
+                    stopTimer(); 
+                    timerObj.isPaused = true;
+                    goToScreen(2);
+                }
+            });
+            
+            // Construir Cuadrícula Global
+            const container = document.getElementById('s1-cases-container');
+            const cols = appState.teamsData.length === 3 ? 'lg:grid-cols-3' : (appState.teamsData.length === 2 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto');
+            container.className = `grid grid-cols-1 ${cols} gap-6 w-full flex-grow overflow-y-auto pb-4`;
+            container.innerHTML = '';
+            
+            appState.teamsData.forEach((team) => {
+                container.innerHTML += `
+                    <div class="cyber-panel neon-border-cyan p-5 md:p-6 space-y-4 sweep-reveal flex flex-col">
+                        <h2 class="text-xl md:text-2xl font-mono text-cyber-cyan border-b border-cyan-900 pb-2">${team.name}</h2>
+                        <h3 class="text-lg font-bold text-white leading-tight">${team.case.titulo}</h3>
+                        <span class="text-[10px] md:text-xs bg-gray-800 text-cyber-cyan px-2 py-1 rounded self-start">${team.case.tags}</span>
+                        <div class="mt-4 flex-grow">
+                            <h4 class="text-cyber-magenta font-mono uppercase mb-1 text-xs md:text-sm">El Reto:</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">${team.case.reto}</p>
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="text-cyber-cyan font-mono uppercase mb-1 text-xs md:text-sm">Misión:</h4>
+                            <p class="text-gray-100 font-bold text-sm leading-relaxed p-3 border-l-2 border-cyber-cyan bg-cyan-900/20 rounded">${team.case.mision}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('btn-s1-skip').onclick = () => goToScreen(2);
+            btnPlay.onclick = () => toggleTimer(btnPlay);
+        }
+
+        // P2: Giros
+        let s2CountdownInt = null;
+        function initScreen2() {
+            let availableTwists = shuffle([...GIROS_INESPERADOS]);
+            appState.teamsData.forEach(t => {
+                if(!t.twist) t.twist = availableTwists.pop(); // Prevenir re-asignar si se recarga
+            });
+
+            // Construir Cuadrícula Global de Giros
+            const container = document.getElementById('s2-twists-container');
+            const cols = appState.teamsData.length === 3 ? 'lg:grid-cols-3' : (appState.teamsData.length === 2 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto');
+            container.className = `grid grid-cols-1 ${cols} gap-6 w-full z-10 px-4`;
+            container.innerHTML = '';
+            
+            appState.teamsData.forEach((team) => {
+                container.innerHTML += `
+                    <div class="cyber-panel neon-border-red p-6 text-center sweep-reveal flex flex-col justify-center bg-red-950/40">
+                        <h3 class="text-xl font-mono text-cyber-red border-b border-red-900 pb-2 mb-4">${team.name}</h3>
+                        <div class="text-cyber-red font-mono text-xs md:text-sm uppercase mb-2">CÓDIGO: ${team.twist.id}</div>
+                        <h4 class="text-lg md:text-xl font-bold text-white mb-4 uppercase leading-tight">${team.twist.titulo}</h4>
+                        <p class="text-sm md:text-base text-gray-200 leading-relaxed">${team.twist.crisis}</p>
+                    </div>
+                `;
+            });
+            
+            let lockTime = 10;
+            const elCount = document.getElementById('s2-countdown');
+            elCount.textContent = lockTime;
+            
+            if(s2CountdownInt) clearInterval(s2CountdownInt);
+            s2CountdownInt = setInterval(() => {
+                lockTime--;
+                elCount.textContent = lockTime;
+                playSound('tick');
+                if(lockTime <= 0) {
+                    clearInterval(s2CountdownInt);
+                    goToScreen(3);
+                }
+            }, 1000);
+        }
+
+        // P3: Adaptación
+        function initScreen3() {
+            const btnPlay = document.getElementById('btn-s3-playpause');
+            btnPlay.disabled = false;
+            
+            timerObj.elDisplay = document.getElementById('s3-timer-display');
+            timerObj.elDisplay.textContent = formatTime(timerObj.remainingMs);
+            
+            let lastAlertSec = -1;
+            
+            timerObj.onEnd = () => {
+                playSound('bell');
+                document.getElementById('btn-s3-next').classList.add('neon-border-cyan');
+                document.getElementById('btn-s3-next').classList.add('active-selector');
+            };
+            
+            timerObj.onTick = (rem) => {
+                const sec = Math.floor(rem / 1000);
+                if (rem <= 60000 && sec !== lastAlertSec) {
+                    lastAlertSec = sec;
+                    if (sec === 60 || sec === 45 || sec === 30 || (sec <= 10 && sec > 0)) {
+                        playSound('warn');
+                        document.body.style.backgroundColor = '#450a0a'; // Dark red flash
+                        setTimeout(() => document.body.style.backgroundColor = '#0a0f1a', 150);
+                    }
+                }
+            };
+            
+            if(!timerObj.isPaused) { stopTimer(); timerObj.isPaused = true; }
+            toggleTimer(btnPlay);
+
+            // Construir Cuadrícula Global de Adaptación
+            const container = document.getElementById('s3-content-container');
+            const cols = appState.teamsData.length === 3 ? 'lg:grid-cols-3' : (appState.teamsData.length === 2 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto');
+            container.className = `grid grid-cols-1 ${cols} gap-6 w-full flex-grow overflow-y-auto pb-4`;
+            container.innerHTML = '';
+            
+            appState.teamsData.forEach((team) => {
+                container.innerHTML += `
+                    <div class="cyber-panel neon-border-magenta p-5 md:p-6 space-y-4 sweep-reveal flex flex-col">
+                        <h2 class="text-xl md:text-2xl font-mono text-cyber-magenta border-b border-fuchsia-900 pb-2">${team.name}</h2>
+                        <div class="p-4 border border-gray-700 bg-black/40 rounded flex-grow">
+                            <h4 class="text-gray-500 font-mono text-[10px] md:text-xs uppercase mb-1">Misión Original:</h4>
+                            <p class="text-gray-400 text-xs md:text-sm leading-relaxed">${team.case.mision}</p>
+                        </div>
+                        <div class="p-4 neon-border-red bg-red-900/20 rounded shadow-[inset_0_0_15px_rgba(239,68,68,0.2)]">
+                            <h4 class="text-cyber-red font-mono text-[10px] md:text-xs uppercase mb-1">Giro Actual (Adaptar):</h4>
+                            <p class="text-white font-bold text-xs md:text-sm leading-relaxed">${team.twist.crisis}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            btnPlay.onclick = () => toggleTimer(btnPlay);
+        }
+        document.getElementById('btn-s3-next').onclick = () => goToScreen(4);
+
+        // P4: Pitch
+        function initScreen4() {
+            updatePitchUI();
+        }
+
+        function updatePitchUI() {
+            const team = appState.teamsData[appState.currentPitchTeamIdx];
+            document.getElementById('s4-team-title').textContent = `PITCH: ${team.name}`;
+            
+            const btnPlay = document.getElementById('btn-s4-playpause');
+            const btnNext = document.getElementById('btn-s4-next');
+            const btnFinish = document.getElementById('btn-s4-finish');
+            const timerCircle = document.getElementById('s4-timer-circle');
+            
+            btnPlay.disabled = false;
+            btnPlay.textContent = 'INICIAR PITCH';
+            btnPlay.classList.remove('magenta');
+            
+            btnNext.classList.add('hidden');
+            btnFinish.classList.add('hidden');
+            
+            timerCircle.className = "cyber-panel neon-border-cyan p-12 flex flex-col items-center justify-center rounded-full w-64 h-64 md:w-96 md:h-96 shadow-2xl transition-colors duration-500";
+            
+            const totalTeams = appState.teamsData.length;
+            const left = totalTeams - appState.currentPitchTeamIdx - 1;
+            document.getElementById('s4-teams-left').textContent = left;
+
+            startGlobalTimer(appState.config.pitchTimeMin, 's4-timer-display', () => {
+                // Pitch End
+                playSound('bell');
+                timerCircle.classList.replace('neon-border-magenta', 'neon-border-red');
+                timerCircle.style.boxShadow = '0 0 50px rgba(239,68,68,0.5)';
+                if (left > 0) btnNext.classList.remove('hidden');
+                else btnFinish.classList.remove('hidden');
+            }, (rem) => {
+                // Semáforo
+                if (rem <= 60000 && rem > 30000) {
+                    timerCircle.classList.replace('neon-border-cyan', 'neon-border-magenta');
+                } else if (rem <= 30000) {
+                    timerCircle.classList.replace('neon-border-cyan', 'neon-border-red');
+                    timerCircle.classList.replace('neon-border-magenta', 'neon-border-red');
+                }
+            });
+
+            // Rebind listeners para evitar multiples si se recarga (usar onclick en lugar de addEvent)
+            btnPlay.onclick = () => toggleTimer(btnPlay);
+            document.getElementById('btn-s4-reset').onclick = () => updatePitchUI(); // Resets timer
+            
+            btnNext.onclick = () => {
+                appState.currentPitchTeamIdx++;
+                updatePitchUI();
+            };
+            btnFinish.onclick = () => goToScreen(5);
+        }
+
+        // P5: Feedback
+        function initScreen5() {
+            buildTabs('s5-tabs', (team) => {
+                const container = document.getElementById('s5-forms-container');
+                container.innerHTML = `
+                    <div class="space-y-6 sweep-reveal">
+                        <h3 class="text-xl text-white font-bold">Evaluación: ${team.name}</h3>
+                        ${createFeedbackGroup(team, 'autorregulacion', '1. Autorregulación emocional')}
+                        ${createFeedbackGroup(team, 'adaptabilidad', '2. Adaptabilidad al cambio')}
+                        ${createFeedbackGroup(team, 'comunicacion', '3. Comunicación bajo presión')}
+                        
+                        <div class="mt-4">
+                            <label class="block text-cyber-cyan font-mono text-sm mb-2">Observaciones</label>
+                            <textarea id="fb-obs-${team.id}" class="cyber-input w-full p-3 h-24" placeholder="Notas breves...">${team.feedback.obs}</textarea>
+                        </div>
+                    </div>
+                `;
+
+                // Bind text area
+                document.getElementById(`fb-obs-${team.id}`).addEventListener('change', (e) => {
+                    team.feedback.obs = e.target.value;
+                    saveStateLocal();
+                });
+            });
+        }
+
+        function createFeedbackGroup(team, field, label) {
+            const val = team.feedback[field];
+            const btnClass = "px-3 py-1 text-xs font-mono border rounded transition-colors";
+            
+            // Inline script to handle click directly for UI update
+            window[`setFb_${field}_${team.id}`] = function(v, el) {
+                team.feedback[field] = v;
+                const parent = el.parentElement;
+                parent.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('bg-gray-700', 'text-white');
+                    b.classList.add('text-gray-400', 'border-gray-600');
+                });
+                el.classList.add('bg-gray-700', 'text-white', 'border-gray-400');
+                saveStateLocal();
+            };
+
+            const g1 = val === 'LOGRADO' ? 'bg-gray-700 text-white border-gray-400' : 'text-gray-400 border-gray-600';
+            const g2 = val === 'EN PROCESO' ? 'bg-gray-700 text-white border-gray-400' : 'text-gray-400 border-gray-600';
+            const g3 = val === 'POR REFORZAR' ? 'bg-gray-700 text-white border-gray-400' : 'text-gray-400 border-gray-600';
+
+            return `
+                <div class="bg-black/30 p-4 rounded border border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <span class="text-gray-200 font-mono text-sm">${label}</span>
+                    <div class="flex gap-2">
+                        <button class="${btnClass} ${g1}" onclick="setFb_${field}_${team.id}('LOGRADO', this)">LOGRADO</button>
+                        <button class="${btnClass} ${g2}" onclick="setFb_${field}_${team.id}('EN PROCESO', this)">EN PROCESO</button>
+                        <button class="${btnClass} ${g3}" onclick="setFb_${field}_${team.id}('POR REFORZAR', this)">POR REFORZAR</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('btn-s5-finish').onclick = async () => {
+            const conf = await showModal("Finalizar", "¿Estás seguro de finalizar y pasar al cierre?", true);
+            if(conf) {
+                saveStateLocal();
+                goToScreen(6);
+            }
+        };
+
+        // P6: Cierre
+        document.getElementById('btn-export-csv').onclick = () => {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Equipo,Caso Asignado,Giro Asignado,Autorregulacion,Adaptabilidad,Comunicacion,Observaciones\n";
+            
+            appState.teamsData.forEach(t => {
+                const caso = `"${t.case.titulo}"`;
+                const giro = `"${t.twist.titulo}"`;
+                const f = t.feedback;
+                const obs = `"${f.obs.replace(/"/g, '""')}"`;
+                csvContent += `${t.name},${caso},${giro},${f.autorregulacion},${f.adaptabilidad},${f.comunicacion},${obs}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Simulador_Crisis_Resultados_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        document.getElementById('btn-reset-app').onclick = async () => {
+            const conf = await showModal("Reiniciar Sistema", "Esto borrará todos los datos de la sesión actual. ¿Continuar?", true);
+            if(conf) {
+                localStorage.removeItem('crisisSimState');
+                location.reload();
+            }
+        };
+
+        // --- LOCAL STORAGE PERSISTENCE ---
+        function saveStateLocal() {
+            // No guardar timers, solo configuracion y resultados
+            const saveObj = {
+                config: appState.config,
+                teamsData: appState.teamsData,
+                screen: appState.screen
+            };
+            localStorage.setItem('crisisSimState', JSON.stringify(saveObj));
+        }
+
+        function tryLoadState() {
+            const saved = localStorage.getItem('crisisSimState');
+            if(saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if(parsed && parsed.teamsData && parsed.teamsData.length > 0 && parsed.screen > 0) {
+                        showModal("Sesión Recuperada", "Se encontró una sesión en curso. ¿Deseas retomarla?", true).then(res => {
+                            if(res) {
+                                appState.config = parsed.config;
+                                appState.teamsData = parsed.teamsData;
+                                goToScreen(parsed.screen);
+                            }
+                        });
+                    }
+                } catch(e) { console.error("Error loading state", e); }
+            }
+        }
+
+        // Init App
+        tryLoadState();
+
+    </script>
+</body>
+</html>
