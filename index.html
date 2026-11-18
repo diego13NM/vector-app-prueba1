@@ -1072,6 +1072,10 @@
       radarSearchTerm: ''
     };
 
+    function escapeAttr(str) {
+      return String(str || '').replace(/"/g, '&quot;');
+    }
+
     function getCol(row, candidates) {
       if (!row) return '';
       for (const key of candidates) {
@@ -1184,6 +1188,305 @@
       router();
     }
 
+    function renderIngenieriaResults() {
+      if (state.isLoadingIng) {
+        return '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando datos desde Google Sheets...</p>';
+      }
+      if (state.loadErrorIng) {
+        return '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los datos. Comprueba la publicación del archivo en la web.</p>';
+      }
+
+      const q = state.searchTermIng.toLowerCase();
+      const filtered = state.liveIngenieria.filter(item => (
+        (item['Título de la convocatoria'] || '').toLowerCase().includes(q) ||
+        (item['Nombre de la entidad'] || '').toLowerCase().includes(q) ||
+        (item['Programas académicos requeridos'] || '').toLowerCase().includes(q) ||
+        (item['Ciudad'] || '').toLowerCase().includes(q)
+      ));
+
+      if (filtered.length === 0) {
+        return '<p style="color:var(--text-muted);">No se encontraron convocatorias que coincidan con el parámetro de búsqueda.</p>';
+      }
+
+      return `
+        <div class="grid">
+          ${filtered.map(c => {
+            const originalIdx = state.liveIngenieria.indexOf(c);
+            return `
+              <div class="card">
+                <div>
+                  <span class="card-tag">${c['Modalidad'] || 'Convocatoria'}</span>
+                  <h3>${c['Título de la convocatoria'] || c['Cargo'] || 'Sin Título'}</h3>
+                  <div class="card-entity">Entidad: ${c['Nombre de la entidad'] || 'No registrada'}</div>
+                  <p>${(c['Descripción'] || 'Sin descripción disponible.').substring(0, 110)}...</p>
+                </div>
+                
+                <div>
+                  <div class="meta-box">
+                    <div><strong>Programa:</strong> ${c['Programas académicos requeridos'] || 'Todos'}</div>
+                    <div><strong>Apoyo:</strong> ${c['Apoyo económico'] || 'No especificado'}</div>
+                    <div><strong>Ciudad:</strong> ${c['Ciudad'] || 'No especificada'}</div>
+                    <div><strong>Cierre:</strong> ${c['Fecha de cierre'] || 'Abierta'}</div>
+                  </div>
+
+                  <div class="btn-group">
+                    <button class="btn" onclick="openModal(${originalIdx})">Ver Detalle Completo</button>
+                    ${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms'] ? 
+                      `<a href="${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms']}" target="_blank" class="btn btn-fuchsia">Postular</a>` : ''
+                    }
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderEconomicasResults() {
+      if (state.isLoadingEco) {
+        return '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando convenios de Ciencias Económicas desde Google Sheets...</p>';
+      }
+      if (state.loadErrorEco) {
+        return '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los convenios. Verifica que la pestaña esté publicada como CSV.</p>';
+      }
+
+      const q = state.searchTermEco.toLowerCase();
+      const filtered = state.liveEconomicas.filter(item => {
+        const entidad = getCol(item, ['ENTIDAD', 'Entidad', 'EMPRESA']);
+        const anio = getCol(item, ['AÑO', 'Año', 'ANO']);
+        const tipo = getCol(item, ['TIPO DE CONVENIO', 'Tipo de convenio', 'TIPO']);
+        const estado = getCol(item, ['ESTADO', 'Estado']);
+        const renovacion = getCol(item, ['RENOVACIÓN', 'RENOVACION', 'Renovación']);
+        const vigencia = getCol(item, ['VIGENCIA', 'Vigencia']);
+        const fecha = getCol(item, ['FECHA', 'Fecha']);
+        const observaciones = getCol(item, ['OBSERVACIONES', 'Observaciones']);
+
+        const matchesSearch = (
+          entidad.toLowerCase().includes(q) ||
+          anio.toLowerCase().includes(q) ||
+          tipo.toLowerCase().includes(q) ||
+          renovacion.toLowerCase().includes(q) ||
+          vigencia.toLowerCase().includes(q) ||
+          fecha.toLowerCase().includes(q) ||
+          observaciones.toLowerCase().includes(q)
+        );
+
+        const matchesFilter = state.filterEcoStatus === 'ALL' || 
+          estado.toLowerCase().includes(state.filterEcoStatus.toLowerCase()) ||
+          renovacion.toLowerCase().includes(state.filterEcoStatus.toLowerCase());
+
+        return matchesSearch && matchesFilter;
+      });
+
+      if (filtered.length === 0) {
+        return '<p style="color:var(--text-muted);">No se encontraron convenios que coincidan con los criterios de búsqueda.</p>';
+      }
+
+      return `
+        <div class="grid">
+          ${filtered.map(item => {
+            const entidad = getCol(item, ['ENTIDAD', 'Entidad', 'EMPRESA']) || 'Entidad sin nombre';
+            const anio = getCol(item, ['AÑO', 'Año', 'ANO']);
+            const tipo = getCol(item, ['TIPO DE CONVENIO', 'Tipo de convenio', 'TIPO']) || 'Prácticas y pasantías';
+            const estado = getCol(item, ['ESTADO', 'Estado']) || 'Vigente';
+            const linkContrato = getCol(item, ['LINK DE CONTRATO', 'Link de contrato', 'LINK']);
+            const renovacion = getCol(item, ['RENOVACIÓN', 'RENOVACION', 'Renovación']) || 'No especificada';
+            const vigencia = getCol(item, ['VIGENCIA', 'Vigencia']) || 'No especificada';
+            const fecha = getCol(item, ['FECHA', 'Fecha']) || 'No registrada';
+            const observaciones = getCol(item, ['OBSERVACIONES', 'Observaciones']);
+            const hasValidLink = linkContrato && linkContrato.startsWith('http');
+
+            return `
+              <div class="card">
+                <div>
+                  <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                    <span class="card-tag card-tag-green" style="margin-bottom:0;">${estado}</span>
+                    ${anio ? `<span class="card-tag" style="margin-bottom:0;">Año ${anio}</span>` : ''}
+                  </div>
+                  <h3>${entidad}</h3>
+                  <div class="card-entity">${tipo}</div>
+                </div>
+                
+                <div>
+                  <div class="meta-box">
+                    <div><strong>Renovación:</strong> ${renovacion}</div>
+                    <div><strong>Vigencia:</strong> ${vigencia}</div>
+                    <div><strong>Fecha suscripción:</strong> ${fecha}</div>
+                    ${observaciones ? `<div><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
+                  </div>
+
+                  ${hasValidLink ? `
+                    <a href="${linkContrato}" target="_blank" rel="noopener noreferrer" class="btn btn-fuchsia">
+                      Ver Contrato / Convenio ↗
+                    </a>
+                  ` : `
+                    <button class="btn" disabled style="opacity:0.45; cursor:not-allowed;">Sin enlace de contrato</button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderBecasResults() {
+      const q = state.becasSearchTerm.toLowerCase();
+      const filtered = becasData.filter(b => {
+        const matchesSearch = (
+          b.nombre.toLowerCase().includes(q) ||
+          b.entidad.toLowerCase().includes(q) ||
+          b.requisitos.toLowerCase().includes(q) ||
+          b.nivel.toLowerCase().includes(q) ||
+          b.cobertura.toLowerCase().includes(q)
+        );
+        const matchesType = state.becasTypeFilter === 'ALL' || b.tipo.includes(state.becasTypeFilter);
+        return matchesSearch && matchesType;
+      });
+
+      return `
+        <div class="table-container">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Nombre de la Beca</th>
+                <th>Tipo</th>
+                <th>Nivel Aplicable</th>
+                <th>Cobertura / Beneficio</th>
+                <th>Entidad Administradora</th>
+                <th>Requisitos Principales</th>
+                <th style="text-align:center;">Enlace</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">No se encontraron becas que coincidan con los criterios de búsqueda.</td></tr>' : ''}
+              ${filtered.map(b => `
+                <tr>
+                  <td style="font-weight:600; color:#fff;">${b.nombre}</td>
+                  <td><span class="card-tag" style="margin-bottom:0; font-size:0.65rem;">${b.tipo}</span></td>
+                  <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--cyan-neon);">${b.nivel}</td>
+                  <td>${b.cobertura}</td>
+                  <td>${b.entidad}</td>
+                  <td style="font-size:0.8rem; color:var(--text-muted);">${b.requisitos}</td>
+                  <td style="text-align:center;">
+                    <a href="${b.link}" target="_blank" class="btn btn-fuchsia" style="padding:0.35rem 0.6rem; font-size:0.75rem; display:inline-block; width:auto;">Ver ↗</a>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderEmpresariosResults() {
+      const q = state.empresariosSearchTerm.toLowerCase();
+      const filtered = egresadosEmpresariosData.filter(e => {
+        const matchesSearch = (
+          e.nombre.toLowerCase().includes(q) ||
+          e.sector.toLowerCase().includes(q) ||
+          e.direccion.toLowerCase().includes(q) ||
+          e.telefono.toLowerCase().includes(q)
+        );
+        const matchesSector = state.empresariosSectorFilter === 'ALL' || e.sector.toLowerCase().includes(state.empresariosSectorFilter.toLowerCase());
+        return matchesSearch && matchesSector;
+      });
+
+      if (filtered.length === 0) {
+        return '<p style="color:var(--text-muted);">No se encontraron empresas de egresados que coincidan con la búsqueda.</p>';
+      }
+
+      return `
+        <div class="grid">
+          ${filtered.map(e => `
+            <div class="card">
+              <div>
+                <span class="card-tag">Egresado UNAL</span>
+                <h3>${e.nombre}</h3>
+                <div class="card-entity">${e.sector}</div>
+              </div>
+              
+              <div>
+                <div class="meta-box">
+                  <div><strong>Dirección:</strong> ${e.direccion}</div>
+                  <div><strong>Teléfono:</strong> ${e.telefono}</div>
+                </div>
+
+                <div style="margin-top:0.5rem;">
+                  <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--cyan-neon); display:block; margin-bottom:0.3rem;">Enlaces y Redes:</span>
+                  <div class="links-grid">
+                    ${e.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-badge">${l.name} ↗</a>`).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderRadarResults() {
+      const q = state.radarSearchTerm.toLowerCase();
+      const filtered = radarAliadosData.filter(r => (
+        r.empresa.toLowerCase().includes(q) ||
+        r.perfiles.toLowerCase().includes(q) ||
+        r.tecnicas.toLowerCase().includes(q) ||
+        r.herramientas.toLowerCase().includes(q) ||
+        r.blandas.toLowerCase().includes(q) ||
+        r.canal.toLowerCase().includes(q)
+      ));
+
+      if (filtered.length === 0) {
+        return '<p style="color:var(--text-muted);">No se encontraron aliados que coincidan con el criterio de búsqueda.</p>';
+      }
+
+      return `
+        <div class="grid">
+          ${filtered.map(r => `
+            <div class="card">
+              <div>
+                <span class="card-tag">${r.canal}</span>
+                <h3>${r.empresa}</h3>
+                <div class="card-entity">Perfiles: ${r.perfiles}</div>
+              </div>
+              
+              <div>
+                <div class="meta-box">
+                  <div><strong>Habilidades Técnicas:</strong> ${r.tecnicas}</div>
+                  <div><strong>Herramientas / Software:</strong> ${r.herramientas}</div>
+                  <div><strong>Habilidades Blandas:</strong> ${r.blandas}</div>
+                </div>
+
+                <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="btn btn-fuchsia">
+                  ${r.enlace} ↗
+                </a>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function updateResults(section) {
+      if (section === 'ing') {
+        const el = document.getElementById('ing-results');
+        if (el) el.innerHTML = renderIngenieriaResults();
+      } else if (section === 'eco') {
+        const el = document.getElementById('eco-results');
+        if (el) el.innerHTML = renderEconomicasResults();
+      } else if (section === 'becas') {
+        const el = document.getElementById('becas-results');
+        if (el) el.innerHTML = renderBecasResults();
+      } else if (section === 'emp') {
+        const el = document.getElementById('emp-results');
+        if (el) el.innerHTML = renderEmpresariosResults();
+      } else if (section === 'radar') {
+        const el = document.getElementById('radar-results');
+        if (el) el.innerHTML = renderRadarResults();
+      }
+    }
+
     const views = {
       '/': () => {
         const isLoadingAny = state.isLoadingIng || state.isLoadingEco;
@@ -1245,374 +1548,136 @@
         `;
       },
 
-      '/rutaingenieria': () => {
-        const filtered = state.liveIngenieria.filter(item => {
-          const q = state.searchTermIng.toLowerCase();
-          return (
-            (item['Título de la convocatoria'] || '').toLowerCase().includes(q) ||
-            (item['Nombre de la entidad'] || '').toLowerCase().includes(q) ||
-            (item['Programas académicos requeridos'] || '').toLowerCase().includes(q) ||
-            (item['Ciudad'] || '').toLowerCase().includes(q)
-          );
-        });
-
-        return `
-          <div class="section-header fade-in">
-            <h1>Ruta Ingeniería (Prácticas y Pasantías)</h1>
-            <p>Convocatorias oficiales de la Facultad de Ingeniería y perfiles afines sincronizadas en tiempo real.</p>
-            <div class="status-badge">
-              <span class="status-dot"></span> 
-              ${state.isLoadingIng ? 'CARGANDO REGISTROS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveIngenieria.length + ' OFERTAS)'}
-            </div>
+      '/rutaingenieria': () => `
+        <div class="section-header fade-in">
+          <h1>Ruta Ingeniería (Prácticas y Pasantías)</h1>
+          <p>Convocatorias oficiales de la Facultad de Ingeniería y perfiles afines sincronizadas en tiempo real.</p>
+          <div class="status-badge">
+            <span class="status-dot"></span> 
+            ${state.isLoadingIng ? 'CARGANDO REGISTROS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveIngenieria.length + ' OFERTAS)'}
           </div>
+        </div>
 
-          <div class="controls-bar fade-in">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Buscar por carrera, empresa, ciudad o palabra clave..."
-              value="${state.searchTermIng}"
-              oninput="state.searchTermIng = this.value; router();"
-            />
+        <div class="controls-bar fade-in">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por carrera, empresa, ciudad o palabra clave..."
+            value="${escapeAttr(state.searchTermIng)}"
+            oninput="state.searchTermIng = this.value; updateResults('ing');"
+          />
+        </div>
+
+        <div id="ing-results" class="fade-in">
+          ${renderIngenieriaResults()}
+        </div>
+      `,
+
+      '/rutaeconomicas': () => `
+        <div class="section-header fade-in">
+          <h1>Ruta Ciencias Económicas (Convenios Vigentes FCE)</h1>
+          <p>Convenios institucionales de prácticas y pasantías gestionados por la Facultad de Ciencias Económicas.</p>
+          <div class="status-badge">
+            <span class="status-dot"></span> 
+            ${state.isLoadingEco ? 'CARGANDO CONVENIOS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveEconomicas.length + ' CONVENIOS)'}
           </div>
+        </div>
 
-          ${state.isLoadingIng ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando datos desde Google Sheets...</p>' : ''}
-          ${state.loadErrorIng ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los datos. Comprueba la publicación del archivo en la web.</p>' : ''}
+        <div class="controls-bar fade-in">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por entidad, año, vigencia, renovación u observaciones..."
+            value="${escapeAttr(state.searchTermEco)}"
+            oninput="state.searchTermEco = this.value; updateResults('eco');"
+          />
+          <select class="select-input" onchange="state.filterEcoStatus = this.value; updateResults('eco');">
+            <option value="ALL" ${state.filterEcoStatus === 'ALL' ? 'selected' : ''}>Todos los convenios</option>
+            <option value="Activo" ${state.filterEcoStatus === 'Activo' ? 'selected' : ''}>Estado: Activo</option>
+            <option value="AUTOMÁTICA" ${state.filterEcoStatus === 'AUTOMÁTICA' ? 'selected' : ''}>Renovación Automática</option>
+          </select>
+        </div>
 
-          <div class="grid fade-in">
-            ${filtered.length === 0 && !state.isLoadingIng ? '<p style="color:var(--text-muted);">No se encontraron convocatorias que coincidan con el parámetro de búsqueda.</p>' : ''}
-            
-            ${filtered.map(c => {
-              const originalIdx = state.liveIngenieria.indexOf(c);
-              return `
-                <div class="card">
-                  <div>
-                    <span class="card-tag">${c['Modalidad'] || 'Convocatoria'}</span>
-                    <h3>${c['Título de la convocatoria'] || c['Cargo'] || 'Sin Título'}</h3>
-                    <div class="card-entity">Entidad: ${c['Nombre de la entidad'] || 'No registrada'}</div>
-                    <p>${(c['Descripción'] || 'Sin descripción disponible.').substring(0, 110)}...</p>
-                  </div>
-                  
-                  <div>
-                    <div class="meta-box">
-                      <div><strong>Programa:</strong> ${c['Programas académicos requeridos'] || 'Todos'}</div>
-                      <div><strong>Apoyo:</strong> ${c['Apoyo económico'] || 'No especificado'}</div>
-                      <div><strong>Ciudad:</strong> ${c['Ciudad'] || 'No especificada'}</div>
-                      <div><strong>Cierre:</strong> ${c['Fecha de cierre'] || 'Abierta'}</div>
-                    </div>
+        <div id="eco-results" class="fade-in">
+          ${renderEconomicasResults()}
+        </div>
+      `,
 
-                    <div class="btn-group">
-                      <button class="btn" onclick="openModal(${originalIdx})">Ver Detalle Completo</button>
-                      ${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms'] ? 
-                        `<a href="${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms']}" target="_blank" class="btn btn-fuchsia">Postular</a>` : ''
-                      }
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-      },
+      '/becas': () => `
+        <div class="section-header fade-in">
+          <h1>Becas y Financiación de Posgrado</h1>
+          <p>Opciones institucionales y externas para la financiación de estudios de posgrado e investigación.</p>
+        </div>
 
-      '/rutaeconomicas': () => {
-        const filtered = state.liveEconomicas.filter(item => {
-          const entidad = getCol(item, ['ENTIDAD', 'Entidad', 'EMPRESA']);
-          const anio = getCol(item, ['AÑO', 'Año', 'ANO']);
-          const tipo = getCol(item, ['TIPO DE CONVENIO', 'Tipo de convenio', 'TIPO']);
-          const estado = getCol(item, ['ESTADO', 'Estado']);
-          const renovacion = getCol(item, ['RENOVACIÓN', 'RENOVACION', 'Renovación']);
-          const vigencia = getCol(item, ['VIGENCIA', 'Vigencia']);
-          const fecha = getCol(item, ['FECHA', 'Fecha']);
-          const observaciones = getCol(item, ['OBSERVACIONES', 'Observaciones']);
+        <div class="controls-bar fade-in">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por nombre de beca, entidad, requisito o nivel..."
+            value="${escapeAttr(state.becasSearchTerm)}"
+            oninput="state.becasSearchTerm = this.value; updateResults('becas');"
+          />
+          <select class="select-input" onchange="state.becasTypeFilter = this.value; updateResults('becas');">
+            <option value="ALL" ${state.becasTypeFilter === 'ALL' ? 'selected' : ''}>Todos los tipos</option>
+            <option value="Interna UNAL" ${state.becasTypeFilter === 'Interna UNAL' ? 'selected' : ''}>Interna UNAL</option>
+            <option value="Externa" ${state.becasTypeFilter === 'Externa' ? 'selected' : ''}>Externa</option>
+          </select>
+        </div>
 
-          const q = state.searchTermEco.toLowerCase();
-          const matchesSearch = (
-            entidad.toLowerCase().includes(q) ||
-            anio.toLowerCase().includes(q) ||
-            tipo.toLowerCase().includes(q) ||
-            renovacion.toLowerCase().includes(q) ||
-            vigencia.toLowerCase().includes(q) ||
-            fecha.toLowerCase().includes(q) ||
-            observaciones.toLowerCase().includes(q)
-          );
+        <div id="becas-results" class="fade-in">
+          ${renderBecasResults()}
+        </div>
+      `,
 
-          const matchesFilter = state.filterEcoStatus === 'ALL' || 
-            estado.toLowerCase().includes(state.filterEcoStatus.toLowerCase()) ||
-            renovacion.toLowerCase().includes(state.filterEcoStatus.toLowerCase());
+      '/egresadosempresarios': () => `
+        <div class="section-header fade-in">
+          <h1>Egresados Empresarios (Red UNAL)</h1>
+          <p>Directorio de empresas y organizaciones fundadas por egresados de la Universidad Nacional de Colombia.</p>
+        </div>
 
-          return matchesSearch && matchesFilter;
-        });
+        <div class="controls-bar fade-in">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por empresa, sector, dirección o teléfono..."
+            value="${escapeAttr(state.empresariosSearchTerm)}"
+            oninput="state.empresariosSearchTerm = this.value; updateResults('emp');"
+          />
+          <select class="select-input" onchange="state.empresariosSectorFilter = this.value; updateResults('emp');">
+            <option value="ALL" ${state.empresariosSectorFilter === 'ALL' ? 'selected' : ''}>Todos los sectores</option>
+            <option value="Servicios" ${state.empresariosSectorFilter === 'Servicios' ? 'selected' : ''}>Servicios</option>
+            <option value="Tecnología" ${state.empresariosSectorFilter === 'Tecnología' ? 'selected' : ''}>Tecnología e IA</option>
+            <option value="Alimentos" ${state.empresariosSectorFilter === 'Alimentos' ? 'selected' : ''}>Alimentos y Agro</option>
+            <option value="Consultoría" ${state.empresariosSectorFilter === 'Consultoría' ? 'selected' : ''}>Consultoría</option>
+            <option value="Audiovisual" ${state.empresariosSectorFilter === 'Audiovisual' ? 'selected' : ''}>Audiovisual / Educación</option>
+          </select>
+        </div>
 
-        return `
-          <div class="section-header fade-in">
-            <h1>Ruta Ciencias Económicas (Convenios Vigentes FCE)</h1>
-            <p>Convenios institucionales de prácticas y pasantías gestionados por la Facultad de Ciencias Económicas.</p>
-            <div class="status-badge">
-              <span class="status-dot"></span> 
-              ${state.isLoadingEco ? 'CARGANDO CONVENIOS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveEconomicas.length + ' CONVENIOS)'}
-            </div>
-          </div>
+        <div id="emp-results" class="fade-in">
+          ${renderEmpresariosResults()}
+        </div>
+      `,
 
-          <div class="controls-bar fade-in">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Buscar por entidad, año, vigencia, renovación u observaciones..."
-              value="${state.searchTermEco}"
-              oninput="state.searchTermEco = this.value; router();"
-            />
-            <select class="select-input" onchange="state.filterEcoStatus = this.value; router();">
-              <option value="ALL" ${state.filterEcoStatus === 'ALL' ? 'selected' : ''}>Todos los convenios</option>
-              <option value="Activo" ${state.filterEcoStatus === 'Activo' ? 'selected' : ''}>Estado: Activo</option>
-              <option value="AUTOMÁTICA" ${state.filterEcoStatus === 'AUTOMÁTICA' ? 'selected' : ''}>Renovación Automática</option>
-            </select>
-          </div>
+      '/radaraliados': () => `
+        <div class="section-header fade-in">
+          <h1>Radar de Aliados (Preferencia por Talento UNAL)</h1>
+          <p>Empresas aliadas con vacantes y requerimientos clave para graduados y estudiantes de la Universidad Nacional.</p>
+        </div>
 
-          ${state.isLoadingEco ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando convenios de Ciencias Económicas desde Google Sheets...</p>' : ''}
-          ${state.loadErrorEco ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los convenios. Verifica que la pestaña esté publicada como CSV.</p>' : ''}
+        <div class="controls-bar fade-in">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por empresa, carrera, habilidad técnica, herramienta o tipo de canal..."
+            value="${escapeAttr(state.radarSearchTerm)}"
+            oninput="state.radarSearchTerm = this.value; updateResults('radar');"
+          />
+        </div>
 
-          <div class="grid fade-in">
-            ${filtered.length === 0 && !state.isLoadingEco ? '<p style="color:var(--text-muted);">No se encontraron convenios que coincidan con los criterios de búsqueda.</p>' : ''}
-            
-            ${filtered.map(item => {
-              const entidad = getCol(item, ['ENTIDAD', 'Entidad', 'EMPRESA']) || 'Entidad sin nombre';
-              const anio = getCol(item, ['AÑO', 'Año', 'ANO']);
-              const tipo = getCol(item, ['TIPO DE CONVENIO', 'Tipo de convenio', 'TIPO']) || 'Prácticas y pasantías';
-              const estado = getCol(item, ['ESTADO', 'Estado']) || 'Vigente';
-              const linkContrato = getCol(item, ['LINK DE CONTRATO', 'Link de contrato', 'LINK']);
-              const renovacion = getCol(item, ['RENOVACIÓN', 'RENOVACION', 'Renovación']) || 'No especificada';
-              const vigencia = getCol(item, ['VIGENCIA', 'Vigencia']) || 'No especificada';
-              const fecha = getCol(item, ['FECHA', 'Fecha']) || 'No registrada';
-              const observaciones = getCol(item, ['OBSERVACIONES', 'Observaciones']);
-              const hasValidLink = linkContrato && linkContrato.startsWith('http');
-
-              return `
-                <div class="card">
-                  <div>
-                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-                      <span class="card-tag card-tag-green" style="margin-bottom:0;">${estado}</span>
-                      ${anio ? `<span class="card-tag" style="margin-bottom:0;">Año ${anio}</span>` : ''}
-                    </div>
-                    <h3>${entidad}</h3>
-                    <div class="card-entity">${tipo}</div>
-                  </div>
-                  
-                  <div>
-                    <div class="meta-box">
-                      <div><strong>Renovación:</strong> ${renovacion}</div>
-                      <div><strong>Vigencia:</strong> ${vigencia}</div>
-                      <div><strong>Fecha suscripción:</strong> ${fecha}</div>
-                      ${observaciones ? `<div><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
-                    </div>
-
-                    ${hasValidLink ? `
-                      <a href="${linkContrato}" target="_blank" rel="noopener noreferrer" class="btn btn-fuchsia">
-                        Ver Contrato / Convenio ↗
-                      </a>
-                    ` : `
-                      <button class="btn" disabled style="opacity:0.45; cursor:not-allowed;">Sin enlace de contrato</button>
-                    `}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-      },
-
-      '/becas': () => {
-        const filtered = becasData.filter(b => {
-          const q = state.becasSearchTerm.toLowerCase();
-          const matchesSearch = (
-            b.nombre.toLowerCase().includes(q) ||
-            b.entidad.toLowerCase().includes(q) ||
-            b.requisitos.toLowerCase().includes(q) ||
-            b.nivel.toLowerCase().includes(q) ||
-            b.cobertura.toLowerCase().includes(q)
-          );
-          const matchesType = state.becasTypeFilter === 'ALL' || b.tipo.includes(state.becasTypeFilter);
-          return matchesSearch && matchesType;
-        });
-
-        return `
-          <div class="section-header fade-in">
-            <h1>Becas y Financiación de Posgrado</h1>
-            <p>Opciones institucionales y externas para la financiación de estudios de posgrado e investigación.</p>
-          </div>
-
-          <div class="controls-bar fade-in">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Buscar por nombre de beca, entidad, requisito o nivel..."
-              value="${state.becasSearchTerm}"
-              oninput="state.becasSearchTerm = this.value; router();"
-            />
-            <select class="select-input" onchange="state.becasTypeFilter = this.value; router();">
-              <option value="ALL" ${state.becasTypeFilter === 'ALL' ? 'selected' : ''}>Todos los tipos</option>
-              <option value="Interna UNAL" ${state.becasTypeFilter === 'Interna UNAL' ? 'selected' : ''}>Interna UNAL</option>
-              <option value="Externa" ${state.becasTypeFilter === 'Externa' ? 'selected' : ''}>Externa</option>
-            </select>
-          </div>
-
-          <div class="table-container fade-in">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Nombre de la Beca</th>
-                  <th>Tipo</th>
-                  <th>Nivel Aplicable</th>
-                  <th>Cobertura / Beneficio</th>
-                  <th>Entidad Administradora</th>
-                  <th>Requisitos Principales</th>
-                  <th style="text-align:center;">Enlace</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${filtered.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:2rem;">No se encontraron becas que coincidan con los criterios de búsqueda.</td></tr>' : ''}
-                ${filtered.map(b => `
-                  <tr>
-                    <td style="font-weight:600; color:#fff;">${b.nombre}</td>
-                    <td><span class="card-tag" style="margin-bottom:0; font-size:0.65rem;">${b.tipo}</span></td>
-                    <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--cyan-neon);">${b.nivel}</td>
-                    <td>${b.cobertura}</td>
-                    <td>${b.entidad}</td>
-                    <td style="font-size:0.8rem; color:var(--text-muted);">${b.requisitos}</td>
-                    <td style="text-align:center;">
-                      <a href="${b.link}" target="_blank" class="btn btn-fuchsia" style="padding:0.35rem 0.6rem; font-size:0.75rem; display:inline-block; width:auto;">Ver ↗</a>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      },
-
-      '/egresadosempresarios': () => {
-        const filtered = egresadosEmpresariosData.filter(e => {
-          const q = state.empresariosSearchTerm.toLowerCase();
-          const matchesSearch = (
-            e.nombre.toLowerCase().includes(q) ||
-            e.sector.toLowerCase().includes(q) ||
-            e.direccion.toLowerCase().includes(q) ||
-            e.telefono.toLowerCase().includes(q)
-          );
-          const matchesSector = state.empresariosSectorFilter === 'ALL' || e.sector.toLowerCase().includes(state.empresariosSectorFilter.toLowerCase());
-          return matchesSearch && matchesSector;
-        });
-
-        return `
-          <div class="section-header fade-in">
-            <h1>Egresados Empresarios (Red UNAL)</h1>
-            <p>Directorio de empresas y organizaciones fundadas por egresados de la Universidad Nacional de Colombia.</p>
-          </div>
-
-          <div class="controls-bar fade-in">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Buscar por empresa, sector, dirección o teléfono..."
-              value="${state.empresariosSearchTerm}"
-              oninput="state.empresariosSearchTerm = this.value; router();"
-            />
-            <select class="select-input" onchange="state.empresariosSectorFilter = this.value; router();">
-              <option value="ALL" ${state.empresariosSectorFilter === 'ALL' ? 'selected' : ''}>Todos los sectores</option>
-              <option value="Servicios" ${state.empresariosSectorFilter === 'Servicios' ? 'selected' : ''}>Servicios</option>
-              <option value="Tecnología" ${state.empresariosSectorFilter === 'Tecnología' ? 'selected' : ''}>Tecnología e IA</option>
-              <option value="Alimentos" ${state.empresariosSectorFilter === 'Alimentos' ? 'selected' : ''}>Alimentos y Agro</option>
-              <option value="Consultoría" ${state.empresariosSectorFilter === 'Consultoría' ? 'selected' : ''}>Consultoría</option>
-              <option value="Audiovisual" ${state.empresariosSectorFilter === 'Audiovisual' ? 'selected' : ''}>Audiovisual / Educación</option>
-            </select>
-          </div>
-
-          <div class="grid fade-in">
-            ${filtered.length === 0 ? '<p style="color:var(--text-muted);">No se encontraron empresas de egresados que coincidan con la búsqueda.</p>' : ''}
-            
-            ${filtered.map(e => `
-              <div class="card">
-                <div>
-                  <span class="card-tag">Egresado UNAL</span>
-                  <h3>${e.nombre}</h3>
-                  <div class="card-entity">${e.sector}</div>
-                </div>
-                
-                <div>
-                  <div class="meta-box">
-                    <div><strong>Dirección:</strong> ${e.direccion}</div>
-                    <div><strong>Teléfono:</strong> ${e.telefono}</div>
-                  </div>
-
-                  <div style="margin-top:0.5rem;">
-                    <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--cyan-neon); display:block; margin-bottom:0.3rem;">Enlaces y Redes:</span>
-                    <div class="links-grid">
-                      ${e.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="link-badge">${l.name} ↗</a>`).join('')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      },
-
-      '/radaraliados': () => {
-        const filtered = radarAliadosData.filter(r => {
-          const q = state.radarSearchTerm.toLowerCase();
-          return (
-            r.empresa.toLowerCase().includes(q) ||
-            r.perfiles.toLowerCase().includes(q) ||
-            r.tecnicas.toLowerCase().includes(q) ||
-            r.herramientas.toLowerCase().includes(q) ||
-            r.blandas.toLowerCase().includes(q) ||
-            r.canal.toLowerCase().includes(q)
-          );
-        });
-
-        return `
-          <div class="section-header fade-in">
-            <h1>Radar de Aliados (Preferencia por Talento UNAL)</h1>
-            <p>Empresas aliadas con vacantes y requerimientos clave para graduados y estudiantes de la Universidad Nacional.</p>
-          </div>
-
-          <div class="controls-bar fade-in">
-            <input 
-              type="text" 
-              class="search-input" 
-              placeholder="Buscar por empresa, carrera, habilidad técnica, herramienta o tipo de canal..."
-              value="${state.radarSearchTerm}"
-              oninput="state.radarSearchTerm = this.value; router();"
-            />
-          </div>
-
-          <div class="grid fade-in">
-            ${filtered.length === 0 ? '<p style="color:var(--text-muted);">No se encontraron aliados que coincidan con el criterio de búsqueda.</p>' : ''}
-            
-            ${filtered.map(r => `
-              <div class="card">
-                <div>
-                  <span class="card-tag">${r.canal}</span>
-                  <h3>${r.empresa}</h3>
-                  <div class="card-entity">Perfiles: ${r.perfiles}</div>
-                </div>
-                
-                <div>
-                  <div class="meta-box">
-                    <div><strong>Habilidades Técnicas:</strong> ${r.tecnicas}</div>
-                    <div><strong>Herramientas / Software:</strong> ${r.herramientas}</div>
-                    <div><strong>Habilidades Blandas:</strong> ${r.blandas}</div>
-                  </div>
-
-                  <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="btn btn-fuchsia">
-                    ${r.enlace} ↗
-                  </a>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      },
+        <div id="radar-results" class="fade-in">
+          ${renderRadarResults()}
+        </div>
+      `,
 
       '/herramientas': () => `
         <div class="section-header fade-in">
