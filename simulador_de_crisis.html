@@ -500,7 +500,6 @@
             const target = document.getElementById(`screen-${num}`);
             if(target) {
                 target.classList.remove('hidden-screen');
-                // Restart animation
                 target.style.animation = 'none';
                 target.offsetHeight; 
                 target.style.animation = null;
@@ -550,7 +549,7 @@
             timerObj.totalDurationMs = durationMin * 60 * 1000;
             timerObj.remainingMs = timerObj.totalDurationMs;
             timerObj.endTimestamp = Date.now() + timerObj.remainingMs;
-            timerObj.isPaused = true; // Starts paused
+            timerObj.isPaused = true;
             timerObj.elDisplay = document.getElementById(displayElId);
             timerObj.elDisplay.textContent = formatTime(timerObj.remainingMs);
             timerObj.elDisplay.classList.remove('timer-danger');
@@ -559,10 +558,9 @@
         }
 
         function toggleTimer(btnEl) {
-            if (!timerObj.interval && !timerObj.isPaused && timerObj.remainingMs <= 0) return; // Finished
+            if (!timerObj.interval && !timerObj.isPaused && timerObj.remainingMs <= 0) return;
 
             if (timerObj.isPaused) {
-                // Resume
                 timerObj.isPaused = false;
                 timerObj.endTimestamp = Date.now() + timerObj.remainingMs;
                 btnEl.textContent = 'PAUSAR';
@@ -583,7 +581,6 @@
                     
                     timerObj.elDisplay.textContent = formatTime(timerObj.remainingMs);
                     
-                    // Efectos últimos 30 segundos
                     if (timerObj.remainingMs <= 30000) {
                         timerObj.elDisplay.classList.add('timer-danger');
                         timerObj.elDisplay.classList.remove('neon-text-cyan', 'neon-text-magenta');
@@ -593,14 +590,12 @@
 
                 }, 100);
             } else {
-                // Pause
                 timerObj.isPaused = true;
                 stopTimer();
                 btnEl.textContent = 'REANUDAR';
                 btnEl.classList.remove('magenta');
             }
         }
-
 
         // --- LÓGICA DE PANTALLAS ---
 
@@ -621,22 +616,20 @@
         });
 
         document.getElementById('btn-start-sim').addEventListener('click', () => {
-            // Calcular tiempo en el que entra el giro sorpresivo
-            let triggerMs = 120000; // 2 min restantes por defecto (para opciones de 5 y 7 min)
-            if (appState.config.baseTimeMin === 3) triggerMs = 90000; // 1.5 min restantes (mitad) para opción de 3 min
+            let triggerMs = 120000;
+            if (appState.config.baseTimeMin === 3) triggerMs = 90000;
             appState.config.twistTriggerTimeMs = triggerMs;
             appState.twistRevealed = false;
 
-            // Asignar casos y preparar datos de equipos
             appState.teamsData = [];
             for(let i=0; i<appState.config.numTeams; i++) {
                 appState.teamsData.push({
                     id: i+1,
                     name: `EQUIPO ${i+1}`,
-                    case: CASOS_BASE[i], // Asignación secuencial (Caso 1->Eq 1, etc)
+                    case: CASOS_BASE[i],
                     twist: null,
                     feedback: {
-                        autorregulacion: '', adaptabilidad: '', comunicacion: '', obs: ''
+                        autorregulacion: 'Alta', adaptabilidad: 'Alta', comunicacion: 'Clara', obs: ''
                     }
                 });
             }
@@ -649,7 +642,7 @@
             container.innerHTML = '';
             
             if(appState.teamsData.length === 1) {
-                container.style.display = 'none'; // Ocultar si es solo 1
+                container.style.display = 'none';
                 contentCb(appState.teamsData[0]);
                 return;
             }
@@ -669,335 +662,243 @@
             contentCb(appState.teamsData[0]);
         }
 
-        // P1: Base
+        // P1: Casos Base
         function initScreen1() {
+            const container = document.getElementById('s1-cases-container');
+            const colsClass = appState.teamsData.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 
+                              appState.teamsData.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3';
+
+            container.innerHTML = `<div class="grid ${colsClass} gap-6">` + appState.teamsData.map(t => `
+                <div class="cyber-panel neon-border-cyan p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-mono text-xs bg-cyan-950 text-cyber-cyan px-2 py-1 rounded border border-cyan-500">${t.name}</span>
+                            <span class="font-mono text-xs text-cyber-magenta">${t.case.tags}</span>
+                        </div>
+                        <h3 class="text-xl font-mono font-bold text-white mb-3">${t.case.titulo}</h3>
+                        <p class="text-sm text-gray-300 mb-4"><strong class="text-cyber-cyan font-mono">RETO:</strong> ${t.case.reto}</p>
+                    </div>
+                    <div class="bg-black/60 p-3 rounded border border-cyan-900/60">
+                        <p class="text-sm text-gray-200"><strong class="text-cyber-magenta font-mono">MISIÓN:</strong> ${t.case.mision}</p>
+                    </div>
+                </div>
+            `).join('') + `</div>`;
+
             const btnPlay = document.getElementById('btn-s1-playpause');
             btnPlay.disabled = false;
             btnPlay.textContent = 'INICIAR';
             btnPlay.classList.remove('magenta');
-            
-            appState.twistRevealed = false;
-            
-            startGlobalTimer(appState.config.baseTimeMin, 's1-timer-display', () => {
-                if(!appState.twistRevealed) goToScreen(2);
-            }, (rem) => {
-                if (rem <= appState.config.twistTriggerTimeMs && !appState.twistRevealed && rem > 0) {
-                    appState.twistRevealed = true;
-                    stopTimer(); 
-                    timerObj.isPaused = true;
-                    goToScreen(2);
+
+            startGlobalTimer(
+                appState.config.baseTimeMin,
+                's1-timer-display',
+                () => goToScreen(2),
+                (rem) => {
+                    if (!appState.twistRevealed && rem <= appState.config.twistTriggerTimeMs) {
+                        appState.twistRevealed = true;
+                        stopTimer();
+                        goToScreen(2);
+                    }
                 }
-            });
-            
-            // Construir Cuadrícula Global
-            const container = document.getElementById('s1-cases-container');
-            const cols = appState.teamsData.length === 3 ? 'lg:grid-cols-3' : (appState.teamsData.length === 2 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto');
-            container.className = `grid grid-cols-1 ${cols} gap-6 w-full flex-grow overflow-y-auto pb-4`;
-            container.innerHTML = '';
-            
-            appState.teamsData.forEach((team) => {
-                container.innerHTML += `
-                    <div class="cyber-panel neon-border-cyan p-5 md:p-6 space-y-4 sweep-reveal flex flex-col">
-                        <h2 class="text-xl md:text-2xl font-mono text-cyber-cyan border-b border-cyan-900 pb-2">${team.name}</h2>
-                        <h3 class="text-lg font-bold text-white leading-tight">${team.case.titulo}</h3>
-                        <span class="text-[10px] md:text-xs bg-gray-800 text-cyber-cyan px-2 py-1 rounded self-start">${team.case.tags}</span>
-                        <div class="mt-4 flex-grow">
-                            <h4 class="text-cyber-magenta font-mono uppercase mb-1 text-xs md:text-sm">El Reto:</h4>
-                            <p class="text-gray-300 text-sm leading-relaxed">${team.case.reto}</p>
-                        </div>
-                        <div class="mt-4">
-                            <h4 class="text-cyber-cyan font-mono uppercase mb-1 text-xs md:text-sm">Misión:</h4>
-                            <p class="text-gray-100 font-bold text-sm leading-relaxed p-3 border-l-2 border-cyber-cyan bg-cyan-900/20 rounded">${team.case.mision}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('btn-s1-skip').onclick = () => goToScreen(2);
+            );
+
             btnPlay.onclick = () => toggleTimer(btnPlay);
+            document.getElementById('btn-s1-skip').onclick = () => {
+                appState.twistRevealed = true;
+                stopTimer();
+                goToScreen(2);
+            };
         }
 
-        // P2: Giros
-        let s2CountdownInt = null;
+        // P2: Giro Inesperado
         function initScreen2() {
-            let availableTwists = shuffle([...GIROS_INESPERADOS]);
-            appState.teamsData.forEach(t => {
-                if(!t.twist) t.twist = availableTwists.pop(); // Prevenir re-asignar si se recarga
+            const shuffledTwists = shuffle([...GIROS_INESPERADOS]);
+            appState.teamsData.forEach((t, idx) => {
+                t.twist = shuffledTwists[idx % shuffledTwists.length];
             });
 
-            // Construir Cuadrícula Global de Giros
             const container = document.getElementById('s2-twists-container');
-            const cols = appState.teamsData.length === 3 ? 'lg:grid-cols-3' : (appState.teamsData.length === 2 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto');
-            container.className = `grid grid-cols-1 ${cols} gap-6 w-full z-10 px-4`;
-            container.innerHTML = '';
-            
-            appState.teamsData.forEach((team) => {
-                container.innerHTML += `
-                    <div class="cyber-panel neon-border-red p-6 text-center sweep-reveal flex flex-col justify-center bg-red-950/40">
-                        <h3 class="text-xl font-mono text-cyber-red border-b border-red-900 pb-2 mb-4">${team.name}</h3>
-                        <div class="text-cyber-red font-mono text-xs md:text-sm uppercase mb-2">CÓDIGO: ${team.twist.id}</div>
-                        <h4 class="text-lg md:text-xl font-bold text-white mb-4 uppercase leading-tight">${team.twist.titulo}</h4>
-                        <p class="text-sm md:text-base text-gray-200 leading-relaxed">${team.twist.crisis}</p>
-                    </div>
-                `;
-            });
-            
-            let lockTime = 10;
+            const colsClass = appState.teamsData.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 
+                              appState.teamsData.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3';
+
+            container.innerHTML = `<div class="grid ${colsClass} gap-6">` + appState.teamsData.map(t => `
+                <div class="cyber-panel neon-border-red p-6 space-y-3 bg-red-950/30">
+                    <div class="font-mono text-xs text-red-400 uppercase font-bold">${t.name} — GIRO ASIGNADO</div>
+                    <h3 class="text-xl font-mono font-bold text-white">${t.twist.titulo}</h3>
+                    <p class="text-sm text-gray-200">${t.twist.crisis}</p>
+                </div>
+            `).join('') + `</div>`;
+
+            let count = 10;
             const elCount = document.getElementById('s2-countdown');
-            elCount.textContent = lockTime;
-            
-            if(s2CountdownInt) clearInterval(s2CountdownInt);
-            s2CountdownInt = setInterval(() => {
-                lockTime--;
-                elCount.textContent = lockTime;
-                playSound('tick');
-                if(lockTime <= 0) {
-                    clearInterval(s2CountdownInt);
+            elCount.textContent = count;
+
+            const cdInterval = setInterval(() => {
+                count--;
+                if (count <= 0) {
+                    clearInterval(cdInterval);
                     goToScreen(3);
+                } else {
+                    elCount.textContent = count;
+                    playSound('tick');
                 }
             }, 1000);
         }
 
         // P3: Adaptación
         function initScreen3() {
+            const container = document.getElementById('s3-content-container');
+            const colsClass = appState.teamsData.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 
+                              appState.teamsData.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3';
+
+            container.innerHTML = `<div class="grid ${colsClass} gap-6">` + appState.teamsData.map(t => `
+                <div class="cyber-panel neon-border-magenta p-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono text-xs bg-fuchsia-950 text-cyber-magenta px-2 py-1 rounded border border-fuchsia-500">${t.name}</span>
+                        <span class="font-mono text-xs text-gray-400">${t.case.titulo}</span>
+                    </div>
+                    <p class="text-xs text-gray-400"><strong>Misión Base:</strong> ${t.case.mision}</p>
+                    <div class="bg-red-950/40 p-3 rounded border border-red-500/60">
+                        <div class="font-mono text-xs text-red-400 font-bold mb-1">⚠ ${t.twist.titulo}</div>
+                        <p class="text-sm text-gray-100">${t.twist.crisis}</p>
+                    </div>
+                </div>
+            `).join('') + `</div>`;
+
+            const adaptMin = timerObj.remainingMs > 15000 ? (timerObj.remainingMs / 60000) : 2;
             const btnPlay = document.getElementById('btn-s3-playpause');
             btnPlay.disabled = false;
-            
-            timerObj.elDisplay = document.getElementById('s3-timer-display');
-            timerObj.elDisplay.textContent = formatTime(timerObj.remainingMs);
-            
-            let lastAlertSec = -1;
-            
-            timerObj.onEnd = () => {
-                playSound('bell');
-                document.getElementById('btn-s3-next').classList.add('neon-border-cyan');
-                document.getElementById('btn-s3-next').classList.add('active-selector');
-            };
-            
-            timerObj.onTick = (rem) => {
-                const sec = Math.floor(rem / 1000);
-                if (rem <= 60000 && sec !== lastAlertSec) {
-                    lastAlertSec = sec;
-                    if (sec === 60 || sec === 45 || sec === 30 || (sec <= 10 && sec > 0)) {
-                        playSound('warn');
-                        document.body.style.backgroundColor = '#450a0a'; // Dark red flash
-                        setTimeout(() => document.body.style.backgroundColor = '#0a0f1a', 150);
-                    }
-                }
-            };
-            
-            if(!timerObj.isPaused) { stopTimer(); timerObj.isPaused = true; }
+
+            startGlobalTimer(adaptMin, 's3-timer-display', () => playSound('bell'));
             toggleTimer(btnPlay);
 
-            // Construir Cuadrícula Global de Adaptación
-            const container = document.getElementById('s3-content-container');
-            const cols = appState.teamsData.length === 3 ? 'lg:grid-cols-3' : (appState.teamsData.length === 2 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto');
-            container.className = `grid grid-cols-1 ${cols} gap-6 w-full flex-grow overflow-y-auto pb-4`;
-            container.innerHTML = '';
-            
-            appState.teamsData.forEach((team) => {
-                container.innerHTML += `
-                    <div class="cyber-panel neon-border-magenta p-5 md:p-6 space-y-4 sweep-reveal flex flex-col">
-                        <h2 class="text-xl md:text-2xl font-mono text-cyber-magenta border-b border-fuchsia-900 pb-2">${team.name}</h2>
-                        <div class="p-4 border border-gray-700 bg-black/40 rounded flex-grow">
-                            <h4 class="text-gray-500 font-mono text-[10px] md:text-xs uppercase mb-1">Misión Original:</h4>
-                            <p class="text-gray-400 text-xs md:text-sm leading-relaxed">${team.case.mision}</p>
-                        </div>
-                        <div class="p-4 neon-border-red bg-red-900/20 rounded shadow-[inset_0_0_15px_rgba(239,68,68,0.2)]">
-                            <h4 class="text-cyber-red font-mono text-[10px] md:text-xs uppercase mb-1">Giro Actual (Adaptar):</h4>
-                            <p class="text-white font-bold text-xs md:text-sm leading-relaxed">${team.twist.crisis}</p>
-                        </div>
-                    </div>
-                `;
-            });
-
             btnPlay.onclick = () => toggleTimer(btnPlay);
+            document.getElementById('btn-s3-next').onclick = () => {
+                stopTimer();
+                goToScreen(4);
+            };
         }
-        document.getElementById('btn-s3-next').onclick = () => goToScreen(4);
 
-        // P4: Pitch
+        // P4: Pitch Relámpago
         function initScreen4() {
-            updatePitchUI();
-        }
-
-        function updatePitchUI() {
             const team = appState.teamsData[appState.currentPitchTeamIdx];
-            document.getElementById('s4-team-title').textContent = `PITCH: ${team.name}`;
-            
+            const remainingTeams = appState.teamsData.length - 1 - appState.currentPitchTeamIdx;
+
+            document.getElementById('s4-team-title').textContent = `PITCH: ${team.name} (${team.case.titulo})`;
+            document.getElementById('s4-teams-left').textContent = remainingTeams;
+
             const btnPlay = document.getElementById('btn-s4-playpause');
             const btnNext = document.getElementById('btn-s4-next');
             const btnFinish = document.getElementById('btn-s4-finish');
-            const timerCircle = document.getElementById('s4-timer-circle');
-            
+
             btnPlay.disabled = false;
             btnPlay.textContent = 'INICIAR PITCH';
             btnPlay.classList.remove('magenta');
-            
-            btnNext.classList.add('hidden');
-            btnFinish.classList.add('hidden');
-            
-            timerCircle.className = "cyber-panel neon-border-cyan p-12 flex flex-col items-center justify-center rounded-full w-64 h-64 md:w-96 md:h-96 shadow-2xl transition-colors duration-500";
-            
-            const totalTeams = appState.teamsData.length;
-            const left = totalTeams - appState.currentPitchTeamIdx - 1;
-            document.getElementById('s4-teams-left').textContent = left;
+
+            btnNext.classList.toggle('hidden', remainingTeams <= 0);
+            btnFinish.classList.toggle('hidden', remainingTeams > 0);
 
             startGlobalTimer(appState.config.pitchTimeMin, 's4-timer-display', () => {
-                // Pitch End
                 playSound('bell');
-                timerCircle.classList.replace('neon-border-magenta', 'neon-border-red');
-                timerCircle.style.boxShadow = '0 0 50px rgba(239,68,68,0.5)';
-                if (left > 0) btnNext.classList.remove('hidden');
-                else btnFinish.classList.remove('hidden');
-            }, (rem) => {
-                // Semáforo
-                if (rem <= 60000 && rem > 30000) {
-                    timerCircle.classList.replace('neon-border-cyan', 'neon-border-magenta');
-                } else if (rem <= 30000) {
-                    timerCircle.classList.replace('neon-border-cyan', 'neon-border-red');
-                    timerCircle.classList.replace('neon-border-magenta', 'neon-border-red');
-                }
             });
 
-            // Rebind listeners para evitar multiples si se recarga (usar onclick en lugar de addEvent)
             btnPlay.onclick = () => toggleTimer(btnPlay);
-            document.getElementById('btn-s4-reset').onclick = () => updatePitchUI(); // Resets timer
-            
+            document.getElementById('btn-s4-reset').onclick = () => initScreen4();
             btnNext.onclick = () => {
+                stopTimer();
                 appState.currentPitchTeamIdx++;
-                updatePitchUI();
+                initScreen4();
             };
-            btnFinish.onclick = () => goToScreen(5);
+            btnFinish.onclick = () => {
+                stopTimer();
+                goToScreen(5);
+            };
         }
 
         // P5: Feedback
         function initScreen5() {
+            const formContainer = document.getElementById('s5-forms-container');
+
             buildTabs('s5-tabs', (team) => {
-                const container = document.getElementById('s5-forms-container');
-                container.innerHTML = `
-                    <div class="space-y-6 sweep-reveal">
-                        <h3 class="text-xl text-white font-bold">Evaluación: ${team.name}</h3>
-                        ${createFeedbackGroup(team, 'autorregulacion', '1. Autorregulación emocional')}
-                        ${createFeedbackGroup(team, 'adaptabilidad', '2. Adaptabilidad al cambio')}
-                        ${createFeedbackGroup(team, 'comunicacion', '3. Comunicación bajo presión')}
-                        
-                        <div class="mt-4">
-                            <label class="block text-cyber-cyan font-mono text-sm mb-2">Observaciones</label>
-                            <textarea id="fb-obs-${team.id}" class="cyber-input w-full p-3 h-24" placeholder="Notas breves...">${team.feedback.obs}</textarea>
+                formContainer.innerHTML = `
+                    <div class="space-y-4 max-w-3xl mx-auto">
+                        <div class="border-b border-gray-800 pb-3">
+                            <h3 class="text-xl font-mono text-cyber-cyan">${team.name} — ${team.case.titulo}</h3>
+                            <p class="text-xs font-mono text-red-400">Giro enfrentado: ${team.twist ? team.twist.titulo : 'N/A'}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block font-mono text-xs text-gray-400 mb-1">AUTORREGULACIÓN EMOCIONAL</label>
+                                <select id="fb-auto" class="cyber-input w-full p-2">
+                                    <option value="Alta" ${team.feedback.autorregulacion === 'Alta' ? 'selected' : ''}>Alta (Calma bajo presión)</option>
+                                    <option value="Media" ${team.feedback.autorregulacion === 'Media' ? 'selected' : ''}>Media (Tensión manejable)</option>
+                                    <option value="Por fortalecer" ${team.feedback.autorregulacion === 'Por fortalecer' ? 'selected' : ''}>Por fortalecer</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-mono text-xs text-gray-400 mb-1">ADAPTABILIDAD AL GIRO</label>
+                                <select id="fb-adap" class="cyber-input w-full p-2">
+                                    <option value="Alta" ${team.feedback.adaptabilidad === 'Alta' ? 'selected' : ''}>Alta (Reestructuró sin reiniciar)</option>
+                                    <option value="Media" ${team.feedback.adaptabilidad === 'Media' ? 'selected' : ''}>Media (Ajuste parcial)</option>
+                                    <option value="Por fortalecer" ${team.feedback.adaptabilidad === 'Por fortalecer' ? 'selected' : ''}>Por fortalecer</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-mono text-xs text-gray-400 mb-1">CLARIDAD EN PITCH</label>
+                                <select id="fb-com" class="cyber-input w-full p-2">
+                                    <option value="Clara" ${team.feedback.comunicacion === 'Clara' ? 'selected' : ''}>Clara y persuasiva</option>
+                                    <option value="Aceptable" ${team.feedback.comunicacion === 'Aceptable' ? 'selected' : ''}>Aceptable</option>
+                                    <option value="Confusa" ${team.feedback.comunicacion === 'Confusa' ? 'selected' : ''}>Confusa / Sin cierre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-mono text-xs text-gray-400 mb-1">OBSERVACIONES Y RETROALIMENTACIÓN DEL FACILITADOR</label>
+                            <textarea id="fb-obs" rows="4" class="cyber-input w-full p-3" placeholder="Anota fortalezas y oportunidades de mejora observadas...">${team.feedback.obs}</textarea>
                         </div>
                     </div>
                 `;
 
-                // Bind text area
-                document.getElementById(`fb-obs-${team.id}`).addEventListener('change', (e) => {
-                    team.feedback.obs = e.target.value;
-                    saveStateLocal();
-                });
-            });
-        }
-
-        function createFeedbackGroup(team, field, label) {
-            const val = team.feedback[field];
-            const btnClass = "px-3 py-1 text-xs font-mono border rounded transition-colors";
-            
-            // Inline script to handle click directly for UI update
-            window[`setFb_${field}_${team.id}`] = function(v, el) {
-                team.feedback[field] = v;
-                const parent = el.parentElement;
-                parent.querySelectorAll('button').forEach(b => {
-                    b.classList.remove('bg-gray-700', 'text-white');
-                    b.classList.add('text-gray-400', 'border-gray-600');
-                });
-                el.classList.add('bg-gray-700', 'text-white', 'border-gray-400');
-                saveStateLocal();
-            };
-
-            const g1 = val === 'LOGRADO' ? 'bg-gray-700 text-white border-gray-400' : 'text-gray-400 border-gray-600';
-            const g2 = val === 'EN PROCESO' ? 'bg-gray-700 text-white border-gray-400' : 'text-gray-400 border-gray-600';
-            const g3 = val === 'POR REFORZAR' ? 'bg-gray-700 text-white border-gray-400' : 'text-gray-400 border-gray-600';
-
-            return `
-                <div class="bg-black/30 p-4 rounded border border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <span class="text-gray-200 font-mono text-sm">${label}</span>
-                    <div class="flex gap-2">
-                        <button class="${btnClass} ${g1}" onclick="setFb_${field}_${team.id}('LOGRADO', this)">LOGRADO</button>
-                        <button class="${btnClass} ${g2}" onclick="setFb_${field}_${team.id}('EN PROCESO', this)">EN PROCESO</button>
-                        <button class="${btnClass} ${g3}" onclick="setFb_${field}_${team.id}('POR REFORZAR', this)">POR REFORZAR</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        document.getElementById('btn-s5-finish').onclick = async () => {
-            const conf = await showModal("Finalizar", "¿Estás seguro de finalizar y pasar al cierre?", true);
-            if(conf) {
-                saveStateLocal();
-                goToScreen(6);
-            }
-        };
-
-        // P6: Cierre
-        document.getElementById('btn-export-csv').onclick = () => {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Equipo,Caso Asignado,Giro Asignado,Autorregulacion,Adaptabilidad,Comunicacion,Observaciones\n";
-            
-            appState.teamsData.forEach(t => {
-                const caso = `"${t.case.titulo}"`;
-                const giro = `"${t.twist.titulo}"`;
-                const f = t.feedback;
-                const obs = `"${f.obs.replace(/"/g, '""')}"`;
-                csvContent += `${t.name},${caso},${giro},${f.autorregulacion},${f.adaptabilidad},${f.comunicacion},${obs}\n`;
+                document.getElementById('fb-auto').onchange = (e) => team.feedback.autorregulacion = e.target.value;
+                document.getElementById('fb-adap').onchange = (e) => team.feedback.adaptabilidad = e.target.value;
+                document.getElementById('fb-com').onchange = (e) => team.feedback.comunicacion = e.target.value;
+                document.getElementById('fb-obs').oninput = (e) => team.feedback.obs = e.target.value;
             });
 
+            document.getElementById('btn-s5-finish').onclick = () => goToScreen(6);
+        }
+
+        // P6: Exportar CSV y Reiniciar
+        document.getElementById('btn-export-csv').addEventListener('click', () => {
+            const headers = ['Equipo', 'Caso Base', 'Giro Inesperado', 'Autorregulacion', 'Adaptabilidad', 'Comunicacion', 'Observaciones'];
+            const rows = appState.teamsData.map(t => [
+                t.name,
+                `"${t.case.titulo}"`,
+                `"${t.twist ? t.twist.titulo : ''}"`,
+                t.feedback.autorregulacion,
+                t.feedback.adaptabilidad,
+                t.feedback.comunicacion,
+                `"${(t.feedback.obs || '').replace(/"/g, '""')}"`
+            ]);
+
+            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
             const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Simulador_Crisis_Resultados_${new Date().toISOString().split('T')[0]}.csv`);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `Simulador_Crisis_VECTOR_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        };
+        });
 
-        document.getElementById('btn-reset-app').onclick = async () => {
-            const conf = await showModal("Reiniciar Sistema", "Esto borrará todos los datos de la sesión actual. ¿Continuar?", true);
-            if(conf) {
-                localStorage.removeItem('crisisSimState');
-                location.reload();
-            }
-        };
-
-        // --- LOCAL STORAGE PERSISTENCE ---
-        function saveStateLocal() {
-            // No guardar timers, solo configuracion y resultados
-            const saveObj = {
-                config: appState.config,
-                teamsData: appState.teamsData,
-                screen: appState.screen
-            };
-            localStorage.setItem('crisisSimState', JSON.stringify(saveObj));
-        }
-
-        function tryLoadState() {
-            const saved = localStorage.getItem('crisisSimState');
-            if(saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if(parsed && parsed.teamsData && parsed.teamsData.length > 0 && parsed.screen > 0) {
-                        showModal("Sesión Recuperada", "Se encontró una sesión en curso. ¿Deseas retomarla?", true).then(res => {
-                            if(res) {
-                                appState.config = parsed.config;
-                                appState.teamsData = parsed.teamsData;
-                                goToScreen(parsed.screen);
-                            }
-                        });
-                    }
-                } catch(e) { console.error("Error loading state", e); }
-            }
-        }
-
-        // Init App
-        tryLoadState();
-
+        document.getElementById('btn-reset-app').addEventListener('click', () => {
+            showModal('REINICIAR SISTEMA', '¿Deseas reiniciar la simulación y volver a la pantalla de configuración?', true)
+                .then(confirmed => {
+                    if (confirmed) goToScreen(0);
+                });
+        });
     </script>
 </body>
 </html>
