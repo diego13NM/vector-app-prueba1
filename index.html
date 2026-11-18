@@ -53,14 +53,14 @@
     }
 
     .nav-container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: 1rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .brand {
@@ -81,7 +81,7 @@
     }
 
     .brand-sub {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--fuchsia-neon);
       font-family: var(--font-mono);
       border-left: 2px solid var(--fuchsia-neon);
@@ -90,7 +90,7 @@
 
     nav {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.35rem;
       flex-wrap: wrap;
     }
 
@@ -98,8 +98,8 @@
       color: var(--text-muted);
       text-decoration: none;
       font-family: var(--font-mono);
-      font-size: 0.85rem;
-      padding: 0.5rem 0.8rem;
+      font-size: 0.78rem;
+      padding: 0.45rem 0.65rem;
       border: 1px solid transparent;
       border-radius: 4px;
       transition: all 0.2s ease-in-out;
@@ -250,6 +250,12 @@
       color: var(--fuchsia-neon);
       border: 1px solid var(--fuchsia-neon);
       width: fit-content;
+    }
+
+    .card-tag-green {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green-status);
+      border: 1px solid var(--green-status);
     }
 
     .card h3 {
@@ -454,7 +460,8 @@
       </a>
       <nav id="nav-menu">
         <a href="#/">Inicio</a>
-        <a href="#/rutaoportunidades">Ruta de Oportunidades</a>
+        <a href="#/rutaingenieria">Ruta Ingeniería</a>
+        <a href="#/rutaeconomicas">Ruta Ciencias Económicas</a>
         <a href="#/becas">Becas y Posgrados</a>
         <a href="#/egresadosempresarios">Egresados Empresarios</a>
         <a href="#/radaraliados">Radar de Aliados</a>
@@ -481,10 +488,10 @@
 
   <!-- Modal Caja de Crisis -->
   <div id="crisisModal" class="modal-overlay" style="display: none; z-index: 2000;" onclick="closeCrisisModal()">
-      <div class="modal-content" style="max-width: 90vw; height: 90vh; padding: 2.5rem 1rem 1rem 1rem; border-color: var(--fuchsia-neon); box-shadow: 0 0 30px var(--fuchsia-glow);" onclick="event.stopPropagation()">
-          <button class="modal-close" onclick="closeCrisisModal()">X</button>
-          <iframe src="la_caja_de_crisis.html" style="width: 100%; height: 100%; border: none; background: #0a0e17; border-radius: 8px;"></iframe>
-      </div>
+    <div class="modal-content" style="max-width: 90vw; height: 90vh; padding: 2.5rem 1rem 1rem 1rem; border-color: var(--fuchsia-neon); box-shadow: 0 0 30px var(--fuchsia-glow);" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeCrisisModal()">X</button>
+      <iframe src="la_caja_de_crisis.html" style="width: 100%; height: 100%; border: none; background: #0a0e17; border-radius: 8px;"></iframe>
+    </div>
   </div>
 
   <!-- Modal Simulador de Crisis -->
@@ -496,7 +503,8 @@
   </div>
   
   <script>
-    const RAW_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5e06JkcNoyg4LPo8hJluVJr8i1mhEcR_2vLd6wFAul5iYIHwk6YZ2ht4J96X5_SkBb1RgBC_hUcCO/pub?output=csv";
+    const INGENIERIA_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5e06JkcNoyg4LPo8hJluVJr8i1mhEcR_2vLd6wFAul5iYIHwk6YZ2ht4J96X5_SkBb1RgBC_hUcCO/pub?output=csv";
+    const ECONOMICAS_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5e06JkcNoyg4LPo8hJluVJr8i1mhEcR_2vLd6wFAul5iYIHwk6YZ2ht4J96X5_SkBb1RgBC_hUcCO/pub?gid=1755438919&single=true&output=csv";
 
     const becasData = [
       {
@@ -1046,16 +1054,37 @@
     ];
 
     const state = {
-      liveConvocatorias: [],
-      isLoading: true,
-      loadError: false,
-      searchTerm: '',
+      liveIngenieria: [],
+      isLoadingIng: true,
+      loadErrorIng: false,
+      searchTermIng: '',
+
+      liveEconomicas: [],
+      isLoadingEco: true,
+      loadErrorEco: false,
+      searchTermEco: '',
+      filterEcoStatus: 'ALL',
+
       becasSearchTerm: '',
       becasTypeFilter: 'ALL',
       empresariosSearchTerm: '',
       empresariosSectorFilter: 'ALL',
       radarSearchTerm: ''
     };
+
+    function getCol(row, candidates) {
+      if (!row) return '';
+      for (const key of candidates) {
+        if (row[key] !== undefined && row[key] !== '') return row[key];
+      }
+      const rowKeys = Object.keys(row);
+      for (const candidate of candidates) {
+        const lowerCand = candidate.toLowerCase();
+        const foundKey = rowKeys.find(k => k.trim().toLowerCase() === lowerCand);
+        if (foundKey && row[foundKey] !== undefined) return row[foundKey];
+      }
+      return '';
+    }
 
     function parseCSV(text) {
       const lines = [];
@@ -1094,24 +1123,22 @@
       return lines.slice(1).map(r => {
         const obj = {};
         headers.forEach((h, idx) => {
-          obj[h.trim()] = r[idx] ? r[idx].trim() : '';
+          if (h.trim()) {
+            obj[h.trim()] = r[idx] ? r[idx].trim() : '';
+          }
         });
         return obj;
       });
     }
 
-    async function fetchLiveData() {
-      state.isLoading = true;
-      state.loadError = false;
-      
-      const targetUrl = RAW_SHEET_URL + "&t=" + new Date().getTime();
+    async function fetchSheetCSV(baseUrl) {
+      const sep = baseUrl.includes('?') ? '&' : '?';
+      const targetUrl = baseUrl + sep + "t=" + new Date().getTime();
       const endpoints = [
         targetUrl,
         "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl),
         "https://corsproxy.io/?" + encodeURIComponent(targetUrl)
       ];
-
-      let csvText = null;
 
       for (const url of endpoints) {
         try {
@@ -1119,78 +1146,108 @@
           if (response.ok) {
             const text = await response.text();
             if (text && text.length > 20 && !text.includes("<!DOCTYPE html>")) {
-              csvText = text;
-              break;
+              return parseCSV(text);
             }
           }
         } catch (err) {
           console.warn("Reintentando conexión con endpoint alternativo:", url);
         }
       }
+      return null;
+    }
 
-      if (csvText) {
-        state.liveConvocatorias = parseCSV(csvText);
-        state.loadError = false;
+    async function fetchAllLiveData() {
+      state.isLoadingIng = true;
+      state.isLoadingEco = true;
+      state.loadErrorIng = false;
+      state.loadErrorEco = false;
+
+      const [ingData, ecoData] = await Promise.all([
+        fetchSheetCSV(INGENIERIA_SHEET_URL),
+        fetchSheetCSV(ECONOMICAS_SHEET_URL)
+      ]);
+
+      if (ingData) {
+        state.liveIngenieria = ingData;
       } else {
-        state.loadError = true;
+        state.loadErrorIng = true;
       }
+      state.isLoadingIng = false;
 
-      state.isLoading = false;
+      if (ecoData) {
+        state.liveEconomicas = ecoData.filter(row => getCol(row, ['ENTIDAD', 'Entidad', 'EMPRESA']) !== '');
+      } else {
+        state.loadErrorEco = true;
+      }
+      state.isLoadingEco = false;
+
       router();
     }
 
     const views = {
-      '/': () => `
-        <div class="section-header fade-in">
-          <h1>SISTEMA OPERATIVO | VECTOR: CÓDIGO DE IMPACTO</h1>
-          <p>Ecosistema Institucional de Empleabilidad y Autonomía Vocacional - UniVector PRO</p>
-          <div class="status-badge">
-            <span class="status-dot"></span> 
-            ${state.isLoading ? 'CONECTANDO CON BASE DE DATOS...' : 'BASE DE DATOS EN VIVO CONECTADA (' + state.liveConvocatorias.length + ' REGISTROS)'}
-          </div>
-        </div>
+      '/': () => {
+        const isLoadingAny = state.isLoadingIng || state.isLoadingEco;
+        const totalLive = state.liveIngenieria.length + state.liveEconomicas.length;
 
-        <div class="grid fade-in">
-          <div class="card">
-            <span class="card-tag">Módulo Principal</span>
-            <h3>Ruta de Oportunidades</h3>
-            <p>Accede directamente a las convocatorias de prácticas y pasantías registradas en tiempo real en la base de datos de la Universidad.</p>
-            <a href="#/rutaoportunidades" class="btn">Explorar Convocatorias (${state.liveConvocatorias.length})</a>
+        return `
+          <div class="section-header fade-in">
+            <h1>SISTEMA OPERATIVO | VECTOR: CÓDIGO DE IMPACTO</h1>
+            <p>Ecosistema Institucional de Empleabilidad y Autonomía Vocacional - UniVector PRO</p>
+            <div class="status-badge">
+              <span class="status-dot"></span> 
+              ${isLoadingAny ? 'CONECTANDO CON BASES DE DATOS EN VIVO...' : 'BASES DE DATOS EN VIVO CONECTADAS (' + totalLive + ' REGISTROS ACTIVOS)'}
+            </div>
           </div>
 
-          <div class="card">
-            <span class="card-tag">Financiación</span>
-            <h3>Becas y Posgrados</h3>
-            <p>Opciones institucionales y externas para la financiación de estudios de posgrado e investigación.</p>
-            <a href="#/becas" class="btn btn-fuchsia">Ver Becas</a>
-          </div>
+          <div class="grid fade-in">
+            <div class="card">
+              <span class="card-tag">Facultad de Ingeniería</span>
+              <h3>Ruta Ingeniería</h3>
+              <p>Convocatorias abiertas de prácticas y pasantías gestionadas por la Facultad de Ingeniería y perfiles interdisciplinarios afines.</p>
+              <a href="#/rutaingenieria" class="btn">Explorar Ingeniería (${state.liveIngenieria.length})</a>
+            </div>
 
-          <div class="card">
-            <span class="card-tag">Red Nacho</span>
-            <h3>Egresados Empresarios</h3>
-            <p>Directorio institucional con 25 empresas y emprendimientos creados por graduados de la Universidad Nacional de Colombia.</p>
-            <a href="#/egresadosempresarios" class="btn">Ver Egresados Empresarios (${egresadosEmpresariosData.length})</a>
-          </div>
+            <div class="card">
+              <span class="card-tag">Facultad de Ciencias Económicas</span>
+              <h3>Ruta Ciencias Económicas</h3>
+              <p>Directorio en vivo de convenios vigentes de prácticas y pasantías (PyP) con acceso directo a contratos y renovaciones.</p>
+              <a href="#/rutaeconomicas" class="btn btn-fuchsia">Explorar Económicas (${state.liveEconomicas.length})</a>
+            </div>
 
-          <div class="card">
-            <span class="card-tag">Aliados Estratégicos</span>
-            <h3>Radar de Aliados (Talento UNAL)</h3>
-            <p>Empresas con alta inclinación por contratar egresados UNAL, detallando perfiles, habilidades clave y enlaces directos de postulación.</p>
-            <a href="#/radaraliados" class="btn btn-fuchsia">Ver Aliados UNAL (${radarAliadosData.length})</a>
-          </div>
+            <div class="card">
+              <span class="card-tag">Financiación</span>
+              <h3>Becas y Posgrados</h3>
+              <p>Opciones institucionales y externas para la financiación de estudios de posgrado e investigación.</p>
+              <a href="#/becas" class="btn">Ver Becas</a>
+            </div>
 
-          <div class="card">
-            <span class="card-tag">Software y Apps</span>
-            <h3>Caja de Herramientas</h3>
-            <p>Aplicaciones interactivas creadas para dinamizar la autogestión de carrera y resolución de crisis.</p>
-            <a href="#/herramientas" class="btn">Abrir Apps</a>
-          </div>
-        </div>
-      `,
+            <div class="card">
+              <span class="card-tag">Red Nacho</span>
+              <h3>Egresados Empresarios</h3>
+              <p>Directorio institucional con 25 empresas y emprendimientos creados por graduados de la Universidad Nacional de Colombia.</p>
+              <a href="#/egresadosempresarios" class="btn btn-fuchsia">Ver Egresados Empresarios (${egresadosEmpresariosData.length})</a>
+            </div>
 
-      '/rutaoportunidades': () => {
-        const filtered = state.liveConvocatorias.filter(item => {
-          const q = state.searchTerm.toLowerCase();
+            <div class="card">
+              <span class="card-tag">Aliados Estratégicos</span>
+              <h3>Radar de Aliados (Talento UNAL)</h3>
+              <p>Empresas con alta inclinación por contratar egresados UNAL, detallando perfiles, habilidades clave y enlaces directos de postulación.</p>
+              <a href="#/radaraliados" class="btn">Ver Aliados UNAL (${radarAliadosData.length})</a>
+            </div>
+
+            <div class="card">
+              <span class="card-tag">Software y Apps</span>
+              <h3>Caja de Herramientas</h3>
+              <p>Aplicaciones interactivas creadas para dinamizar la autogestión de carrera y resolución de crisis.</p>
+              <a href="#/herramientas" class="btn btn-fuchsia">Abrir Apps</a>
+            </div>
+          </div>
+        `;
+      },
+
+      '/rutaingenieria': () => {
+        const filtered = state.liveIngenieria.filter(item => {
+          const q = state.searchTermIng.toLowerCase();
           return (
             (item['Título de la convocatoria'] || '').toLowerCase().includes(q) ||
             (item['Nombre de la entidad'] || '').toLowerCase().includes(q) ||
@@ -1201,11 +1258,11 @@
 
         return `
           <div class="section-header fade-in">
-            <h1>Ruta de Oportunidades (Prácticas y Pasantías)</h1>
-            <p>Convocatorias oficiales sincronizadas en tiempo real desde el Google Sheet oficial.</p>
+            <h1>Ruta Ingeniería (Prácticas y Pasantías)</h1>
+            <p>Convocatorias oficiales de la Facultad de Ingeniería y perfiles afines sincronizadas en tiempo real.</p>
             <div class="status-badge">
               <span class="status-dot"></span> 
-              ${state.isLoading ? 'CARGANDO REGISTROS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveConvocatorias.length + ' OFERTAS)'}
+              ${state.isLoadingIng ? 'CARGANDO REGISTROS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveIngenieria.length + ' OFERTAS)'}
             </div>
           </div>
 
@@ -1213,44 +1270,153 @@
             <input 
               type="text" 
               class="search-input" 
-              placeholder="Ingresa parámetro de búsqueda (carrera, empresa, ciudad, palabra clave)..."
-              value="${state.searchTerm}"
-              oninput="state.searchTerm = this.value; router();"
+              placeholder="Buscar por carrera, empresa, ciudad o palabra clave..."
+              value="${state.searchTermIng}"
+              oninput="state.searchTermIng = this.value; router();"
             />
           </div>
 
-          ${state.isLoading ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando datos desde Google Sheets...</p>' : ''}
-          ${state.loadError ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los datos. Comprueba la publicación del archivo en la web.</p>' : ''}
+          ${state.isLoadingIng ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando datos desde Google Sheets...</p>' : ''}
+          ${state.loadErrorIng ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los datos. Comprueba la publicación del archivo en la web.</p>' : ''}
 
           <div class="grid fade-in">
-            ${filtered.length === 0 && !state.isLoading ? '<p style="color:var(--text-muted);">No se encontraron convocatorias que coincidan con el parámetro de búsqueda.</p>' : ''}
+            ${filtered.length === 0 && !state.isLoadingIng ? '<p style="color:var(--text-muted);">No se encontraron convocatorias que coincidan con el parámetro de búsqueda.</p>' : ''}
             
-            ${filtered.map((c, idx) => `
-              <div class="card">
-                <div>
-                  <span class="card-tag">${c['Modalidad'] || 'Convocatoria'}</span>
-                  <h3>${c['Título de la convocatoria'] || c['Cargo'] || 'Sin Título'}</h3>
-                  <div class="card-entity">Entidad: ${c['Nombre de la entidad'] || 'No registrada'}</div>
-                  <p>${(c['Descripción'] || 'Sin descripción disponible.').substring(0, 110)}...</p>
-                </div>
-                
-                <div>
-                  <div class="meta-box">
-                    <div><strong>Programa:</strong> ${c['Programas académicos requeridos'] || 'Todos'}</div>
-                    <div><strong>Apoyo:</strong> ${c['Apoyo económico'] || 'No especificado'}</div>
-                    <div><strong>Ciudad:</strong> ${c['Ciudad'] || 'No especificada'}</div>
-                    <div><strong>Cierre:</strong> ${c['Fecha de cierre'] || 'Abierta'}</div>
+            ${filtered.map(c => {
+              const originalIdx = state.liveIngenieria.indexOf(c);
+              return `
+                <div class="card">
+                  <div>
+                    <span class="card-tag">${c['Modalidad'] || 'Convocatoria'}</span>
+                    <h3>${c['Título de la convocatoria'] || c['Cargo'] || 'Sin Título'}</h3>
+                    <div class="card-entity">Entidad: ${c['Nombre de la entidad'] || 'No registrada'}</div>
+                    <p>${(c['Descripción'] || 'Sin descripción disponible.').substring(0, 110)}...</p>
                   </div>
+                  
+                  <div>
+                    <div class="meta-box">
+                      <div><strong>Programa:</strong> ${c['Programas académicos requeridos'] || 'Todos'}</div>
+                      <div><strong>Apoyo:</strong> ${c['Apoyo económico'] || 'No especificado'}</div>
+                      <div><strong>Ciudad:</strong> ${c['Ciudad'] || 'No especificada'}</div>
+                      <div><strong>Cierre:</strong> ${c['Fecha de cierre'] || 'Abierta'}</div>
+                    </div>
 
-                  <div class="btn-group">
-                    <button class="btn" onclick="openModal(${idx})">Ver Detalle Completo</button>
-                    ${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms'] ? 
-                      `<a href="${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms']}" target="_blank" class="btn btn-fuchsia">Postular</a>` : ''
-                    }
+                    <div class="btn-group">
+                      <button class="btn" onclick="openModal(${originalIdx})">Ver Detalle Completo</button>
+                      ${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms'] ? 
+                        `<a href="${c['Si desea ser presentado por la Universidad, postule su hoja de vida en el siguiente forms']}" target="_blank" class="btn btn-fuchsia">Postular</a>` : ''
+                      }
+                    </div>
                   </div>
                 </div>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
+          </div>
+        `;
+      },
+
+      '/rutaeconomicas': () => {
+        const filtered = state.liveEconomicas.filter(item => {
+          const entidad = getCol(item, ['ENTIDAD', 'Entidad', 'EMPRESA']);
+          const anio = getCol(item, ['AÑO', 'Año', 'ANO']);
+          const tipo = getCol(item, ['TIPO DE CONVENIO', 'Tipo de convenio', 'TIPO']);
+          const estado = getCol(item, ['ESTADO', 'Estado']);
+          const renovacion = getCol(item, ['RENOVACIÓN', 'RENOVACION', 'Renovación']);
+          const vigencia = getCol(item, ['VIGENCIA', 'Vigencia']);
+          const fecha = getCol(item, ['FECHA', 'Fecha']);
+          const observaciones = getCol(item, ['OBSERVACIONES', 'Observaciones']);
+
+          const q = state.searchTermEco.toLowerCase();
+          const matchesSearch = (
+            entidad.toLowerCase().includes(q) ||
+            anio.toLowerCase().includes(q) ||
+            tipo.toLowerCase().includes(q) ||
+            renovacion.toLowerCase().includes(q) ||
+            vigencia.toLowerCase().includes(q) ||
+            fecha.toLowerCase().includes(q) ||
+            observaciones.toLowerCase().includes(q)
+          );
+
+          const matchesFilter = state.filterEcoStatus === 'ALL' || 
+            estado.toLowerCase().includes(state.filterEcoStatus.toLowerCase()) ||
+            renovacion.toLowerCase().includes(state.filterEcoStatus.toLowerCase());
+
+          return matchesSearch && matchesFilter;
+        });
+
+        return `
+          <div class="section-header fade-in">
+            <h1>Ruta Ciencias Económicas (Convenios Vigentes FCE)</h1>
+            <p>Convenios institucionales de prácticas y pasantías gestionados por la Facultad de Ciencias Económicas.</p>
+            <div class="status-badge">
+              <span class="status-dot"></span> 
+              ${state.isLoadingEco ? 'CARGANDO CONVENIOS EN VIVO...' : 'SINCRONIZADO EN TIEMPO REAL (' + state.liveEconomicas.length + ' CONVENIOS)'}
+            </div>
+          </div>
+
+          <div class="controls-bar fade-in">
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Buscar por entidad, año, vigencia, renovación u observaciones..."
+              value="${state.searchTermEco}"
+              oninput="state.searchTermEco = this.value; router();"
+            />
+            <select class="select-input" onchange="state.filterEcoStatus = this.value; router();">
+              <option value="ALL" ${state.filterEcoStatus === 'ALL' ? 'selected' : ''}>Todos los convenios</option>
+              <option value="Activo" ${state.filterEcoStatus === 'Activo' ? 'selected' : ''}>Estado: Activo</option>
+              <option value="AUTOMÁTICA" ${state.filterEcoStatus === 'AUTOMÁTICA' ? 'selected' : ''}>Renovación Automática</option>
+            </select>
+          </div>
+
+          ${state.isLoadingEco ? '<p style="color:var(--cyan-neon); font-family:var(--font-mono);">Cargando convenios de Ciencias Económicas desde Google Sheets...</p>' : ''}
+          ${state.loadErrorEco ? '<p style="color:var(--red-alert); font-family:var(--font-mono);">Error al descargar los convenios. Verifica que la pestaña esté publicada como CSV.</p>' : ''}
+
+          <div class="grid fade-in">
+            ${filtered.length === 0 && !state.isLoadingEco ? '<p style="color:var(--text-muted);">No se encontraron convenios que coincidan con los criterios de búsqueda.</p>' : ''}
+            
+            ${filtered.map(item => {
+              const entidad = getCol(item, ['ENTIDAD', 'Entidad', 'EMPRESA']) || 'Entidad sin nombre';
+              const anio = getCol(item, ['AÑO', 'Año', 'ANO']);
+              const tipo = getCol(item, ['TIPO DE CONVENIO', 'Tipo de convenio', 'TIPO']) || 'Prácticas y pasantías';
+              const estado = getCol(item, ['ESTADO', 'Estado']) || 'Vigente';
+              const linkContrato = getCol(item, ['LINK DE CONTRATO', 'Link de contrato', 'LINK']);
+              const renovacion = getCol(item, ['RENOVACIÓN', 'RENOVACION', 'Renovación']) || 'No especificada';
+              const vigencia = getCol(item, ['VIGENCIA', 'Vigencia']) || 'No especificada';
+              const fecha = getCol(item, ['FECHA', 'Fecha']) || 'No registrada';
+              const observaciones = getCol(item, ['OBSERVACIONES', 'Observaciones']);
+              const hasValidLink = linkContrato && linkContrato.startsWith('http');
+
+              return `
+                <div class="card">
+                  <div>
+                    <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                      <span class="card-tag card-tag-green" style="margin-bottom:0;">${estado}</span>
+                      ${anio ? `<span class="card-tag" style="margin-bottom:0;">Año ${anio}</span>` : ''}
+                    </div>
+                    <h3>${entidad}</h3>
+                    <div class="card-entity">${tipo}</div>
+                  </div>
+                  
+                  <div>
+                    <div class="meta-box">
+                      <div><strong>Renovación:</strong> ${renovacion}</div>
+                      <div><strong>Vigencia:</strong> ${vigencia}</div>
+                      <div><strong>Fecha suscripción:</strong> ${fecha}</div>
+                      ${observaciones ? `<div><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
+                    </div>
+
+                    ${hasValidLink ? `
+                      <a href="${linkContrato}" target="_blank" rel="noopener noreferrer" class="btn btn-fuchsia">
+                        Ver Contrato / Convenio ↗
+                      </a>
+                    ` : `
+                      <button class="btn" disabled style="opacity:0.45; cursor:not-allowed;">Sin enlace de contrato</button>
+                    `}
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         `;
       },
@@ -1480,7 +1646,7 @@
     };
 
     function openModal(index) {
-      const item = state.liveConvocatorias[index];
+      const item = state.liveIngenieria[index];
       if (!item) return;
 
       const modalHtml = `
@@ -1572,7 +1738,7 @@
 
     window.addEventListener('hashchange', router);
     window.addEventListener('DOMContentLoaded', () => {
-      fetchLiveData();
+      fetchAllLiveData();
     });
   </script>
 </body>
